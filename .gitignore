@@ -39,10 +39,11 @@ out/
 ### Env ###
 .env
 .env.*
+!.env.example
 
-### Spring profiles ###
-application-local.yml
-application-*.yml
+### Spring config ###
+application-local.properties
+application-*.properties
 
 ### Logs ###
 *.log
