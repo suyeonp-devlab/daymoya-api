@@ -41,10 +41,6 @@ out/
 .env.*
 !.env.example
 
-### Spring config ###
-application-local.properties
-application-*.properties
-
 ### Logs ###
 *.log
 

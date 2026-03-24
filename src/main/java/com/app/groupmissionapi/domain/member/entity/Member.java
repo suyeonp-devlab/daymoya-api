@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Member extends BaseTimeEntity {
 
+  private static final int PASSWORD_ERROR_CNT = 5;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -29,6 +31,10 @@ public class Member extends BaseTimeEntity {
   @Column(nullable = false, length = 20)
   private String nickname;
 
+  // 프로필 이미지 경로
+  @Column(nullable = false)
+  private String profileImageUrl;
+
   // 상태 (ACTIVE, INACTIVE, SUSPENDED 등)
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
@@ -37,9 +43,6 @@ public class Member extends BaseTimeEntity {
   // 로그인 실패 횟수
   @Column(nullable = false)
   private int loginFailCount;
-
-  // 계정 잠금 해제 시간
-  private LocalDateTime lockedUntil;
 
   // 비밀번호 변경 시간
   @Column(nullable = false)
@@ -50,5 +53,21 @@ public class Member extends BaseTimeEntity {
 
   // 마지막 확인 시간 (알림 등)
   private LocalDateTime lastCheckedAt;
+
+  /** 비밀번호 실패 처리 */
+  public void increaseLoginFailCount() {
+    this.loginFailCount++;
+  }
+
+  /** 비밀번호 변경 강제 여부 */
+  public boolean isPasswordChangeRequired() {
+    return this.loginFailCount >= PASSWORD_ERROR_CNT;
+  }
+
+  /** 로그인 성공 처리 */
+  public void successLogin(LocalDateTime now) {
+    this.loginFailCount = 0;
+    this.lastLoginAt = now;
+  }
 
 }
