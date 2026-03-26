@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-import static com.app.groupmissionapi.global.constant.JwtConstants.REFRESH_TOKEN_PREFIX;
+import static com.app.groupmissionapi.global.redis.RedisKeys.refreshTokenKey;
 
 @Service
 @RequiredArgsConstructor
@@ -15,23 +15,18 @@ public class RefreshTokenService {
   private final StringRedisTemplate stringRedisTemplate;
 
   public void save(Long memberId, String refreshToken, long expirationMs) {
-    stringRedisTemplate.opsForValue().set(
-      generateKey(memberId),
-      refreshToken,
-      Duration.ofMillis(expirationMs)
-    );
+    String key = refreshTokenKey(memberId);
+    stringRedisTemplate.opsForValue().set(key, refreshToken, Duration.ofMillis(expirationMs));
   }
 
   public String find(Long memberId) {
-    return stringRedisTemplate.opsForValue().get(generateKey(memberId));
+    String key = refreshTokenKey(memberId);
+    return stringRedisTemplate.opsForValue().get(key);
   }
 
   public void delete(Long memberId) {
-    stringRedisTemplate.delete(generateKey(memberId));
-  }
-
-  private String generateKey(Long memberId) {
-    return REFRESH_TOKEN_PREFIX + memberId;
+    String key = refreshTokenKey(memberId);
+    stringRedisTemplate.delete(key);
   }
 
 }

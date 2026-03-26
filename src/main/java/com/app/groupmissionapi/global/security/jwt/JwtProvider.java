@@ -1,6 +1,6 @@
 package com.app.groupmissionapi.global.security.jwt;
 
-import com.app.groupmissionapi.global.config.JwtProperties;
+import com.app.groupmissionapi.global.properties.JwtProperties;
 import com.app.groupmissionapi.global.constant.JwtConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

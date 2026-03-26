@@ -1,0 +1,19 @@
+package com.app.groupmissionapi.global.redis;
+
+import java.time.Duration;
+
+public final class RedisTtl {
+
+  private RedisTtl() {}
+
+  public static final Duration SIGNUP_CODE_TTL = Duration.ofMinutes(5);
+
+  public static final Duration SIGNUP_VERIFIED_TTL = Duration.ofMinutes(30);
+
+  public static final Duration SIGNUP_COOLDOWN_TTL = Duration.ofSeconds(60);
+
+  public static final Duration SIGNUP_FAIL_COUNT_TTL = Duration.ofMinutes(5);
+
+  public static final Duration SIGNUP_IP_LIMIT_TTL = Duration.ofSeconds(10);
+
+}

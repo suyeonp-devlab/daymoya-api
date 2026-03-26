@@ -1,6 +1,6 @@
 package com.app.groupmissionapi.global.util;
 
-import com.app.groupmissionapi.global.config.CookieProperties;
+import com.app.groupmissionapi.global.properties.CookieProperties;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

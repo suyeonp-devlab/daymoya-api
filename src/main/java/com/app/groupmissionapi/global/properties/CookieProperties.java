@@ -1,4 +1,4 @@
-package com.app.groupmissionapi.global.config;
+package com.app.groupmissionapi.global.properties;
 
 import lombok.Getter;
 import lombok.Setter;
