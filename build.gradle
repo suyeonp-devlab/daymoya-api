@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.app'
 version = '0.0.1-SNAPSHOT'
-description = 'group-mission-api'
+description = 'daymoya-api'
 
 java {
     toolchain {
