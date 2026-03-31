@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -313,10 +314,39 @@ public class AuthService {
     refreshTokenRepository.deleteToken(member.getId());
   }
 
-  /** 랜덤 프로필 선택 */
-  private String getRandomProfileImagePath() {
-    int randomIndex = ThreadLocalRandom.current().nextInt(DEFAULT_PROFILE_IMAGES.size());
-    return DEFAULT_PROFILE_IMAGES.get(randomIndex);
+  /** access token 재발급 */
+  public void refreshAccessToken(String refreshToken, HttpServletResponse httpResponse) {
+
+    // refresh token 검증
+    if (!StringUtils.hasText(refreshToken)) {
+      throw new CustomException(REFRESH_TOKEN_REQUIRED);
+    }
+
+    if (!jwtProvider.validateRefreshToken(refreshToken)) {
+      throw new CustomException(REFRESH_TOKEN_INVALID);
+    }
+
+    Long memberId = jwtProvider.getMemberId(refreshToken);
+    String refreshTokenHash = sha256Hash.hash(refreshToken);
+
+    String savedRefreshToken = refreshTokenRepository.findToken(memberId);
+    if (!StringUtils.hasText(savedRefreshToken) || !refreshTokenHash.equals(savedRefreshToken)) {
+      throw new CustomException(REFRESH_TOKEN_INVALID);
+    }
+
+    // 사용자 조회
+    Member member = memberRepository.findById(memberId)
+      .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+    // token 발급 및 쿠키 저장
+    String newAccessToken = jwtProvider.generateAccessToken(member.getId(), member.getEmail());
+
+    cookieUtil.addCookie(
+      httpResponse,
+      JwtConstants.ACCESS_TOKEN_COOKIE_NAME,
+      newAccessToken,
+      (int) (jwtProvider.getAccessTokenExpirationMs() / 1000)
+    );
   }
 
   /** 현재 로그인 사용자 정보 조회 */
@@ -331,6 +361,12 @@ public class AuthService {
       member.getNickname(),
       fileService.buildFileUrl(member.getProfileImagePath())
     );
+  }
+
+  /** 랜덤 프로필 선택 */
+  private String getRandomProfileImagePath() {
+    int randomIndex = ThreadLocalRandom.current().nextInt(DEFAULT_PROFILE_IMAGES.size());
+    return DEFAULT_PROFILE_IMAGES.get(randomIndex);
   }
 
 }

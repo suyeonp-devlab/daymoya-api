@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import static com.app.daymoya.global.constant.JwtConstants.REFRESH_TOKEN_COOKIE_NAME;
 import static com.app.daymoya.global.util.WebUtil.getClientIp;
 
 @RestController
@@ -79,6 +80,15 @@ public class AuthController {
   public ApiResponse<Void> resetForgottenPassword(@Valid @RequestBody PasswordForgotResetRequest request) {
 
     authService.resetForgottenPassword(request);
+    return ApiResponse.success(null);
+  }
+
+  /** access token 재발급 */
+  @PostMapping("/public/refresh/token")
+  public ApiResponse<Void> refreshAccessToken(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
+                                             ,HttpServletResponse httpResponse) {
+
+    authService.refreshAccessToken(refreshToken, httpResponse);
     return ApiResponse.success(null);
   }
 

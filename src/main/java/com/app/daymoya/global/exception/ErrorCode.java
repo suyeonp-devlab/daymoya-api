@@ -30,6 +30,8 @@ public enum ErrorCode {
   PASSWORD_CONFIRM_NOT_MATCH(BAD_REQUEST, "AUTH-008", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
   EMAIL_NOT_VERIFIED(BAD_REQUEST, "AUTH-009", "이메일 인증이 완료되지 않았습니다."),
   PASSWORD_SAME_AS_OLD(BAD_REQUEST, "AUTH-010", "기존 비밀번호와 동일한 비밀번호는 사용할 수 없습니다."),
+  REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH-011", "리프레시 토큰이 필요합니다."),
+  REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH-012", "유효하지 않은 리프레시 토큰입니다."),
 
   /** =====================================
    * MEMBER 관련

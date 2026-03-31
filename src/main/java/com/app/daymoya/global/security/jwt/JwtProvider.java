@@ -57,10 +57,19 @@ public class JwtProvider {
       .compact();
   }
 
-  public boolean validateToken(String token) {
+  public boolean validateAccessToken(String token) {
     try {
-      getClaims(token);
-      return true;
+      String tokenType = getTokenType(token);
+      return JwtConstants.ACCESS_TOKEN_TYPE.equals(tokenType);
+    } catch (JwtException | IllegalArgumentException e) {
+      return false;
+    }
+  }
+
+  public boolean validateRefreshToken(String token) {
+    try {
+      String tokenType = getTokenType(token);
+      return JwtConstants.REFRESH_TOKEN_TYPE.equals(tokenType);
     } catch (JwtException | IllegalArgumentException e) {
       return false;
     }
