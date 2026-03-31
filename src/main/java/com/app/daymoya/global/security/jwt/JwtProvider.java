@@ -84,7 +84,7 @@ public class JwtProvider {
   public Authentication getAuthentication(String token) {
 
     Claims claims = getClaims(token);
-    String memberId = claims.getSubject();
+    Long memberId = Long.valueOf(claims.getSubject());
 
     return new UsernamePasswordAuthenticationToken(memberId, null, List.of());
   }

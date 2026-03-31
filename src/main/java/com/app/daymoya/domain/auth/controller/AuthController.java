@@ -1,7 +1,7 @@
 package com.app.daymoya.domain.auth.controller;
 
 import com.app.daymoya.domain.auth.dto.request.*;
-import com.app.daymoya.domain.auth.dto.response.LoginResponse;
+import com.app.daymoya.domain.auth.dto.response.MeResponse;
 import com.app.daymoya.domain.auth.service.AuthService;
 import com.app.daymoya.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static com.app.daymoya.global.util.WebUtil.getClientIp;
@@ -22,11 +23,11 @@ public class AuthController {
 
   /** 로그인 */
   @PostMapping("/public/login")
-  public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request
+  public ApiResponse<Void> login(@Valid @RequestBody LoginRequest request
                                          ,HttpServletResponse httpResponse) {
 
-    LoginResponse result = authService.login(request, httpResponse);
-    return ApiResponse.success(result);
+    authService.login(request, httpResponse);
+    return ApiResponse.success(null);
   }
 
   /** 회원가입 메일 인증코드 전송 */
@@ -79,6 +80,15 @@ public class AuthController {
 
     authService.resetForgottenPassword(request);
     return ApiResponse.success(null);
+  }
+
+  /** 현재 로그인 사용자 정보 조회 */
+  @GetMapping("/me")
+  public ApiResponse<MeResponse> me(Authentication authentication) {
+
+    Long memberId = (Long) authentication.getPrincipal();
+    MeResponse me = authService.getMe(memberId);
+    return ApiResponse.success(me);
   }
 
 }

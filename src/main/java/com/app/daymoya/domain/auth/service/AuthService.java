@@ -3,7 +3,7 @@ package com.app.daymoya.domain.auth.service;
 import com.app.daymoya.domain.auth.dto.request.LoginRequest;
 import com.app.daymoya.domain.auth.dto.request.PasswordForgotResetRequest;
 import com.app.daymoya.domain.auth.dto.request.SignupRequest;
-import com.app.daymoya.domain.auth.dto.response.LoginResponse;
+import com.app.daymoya.domain.auth.dto.response.MeResponse;
 import com.app.daymoya.domain.auth.repository.redis.PasswordForgotVerificationRepository;
 import com.app.daymoya.domain.auth.repository.redis.RefreshTokenRepository;
 import com.app.daymoya.domain.auth.repository.redis.SignupVerificationRepository;
@@ -19,6 +19,7 @@ import com.app.daymoya.global.mail.service.MailService;
 import com.app.daymoya.global.security.hash.Sha256Hash;
 import com.app.daymoya.global.security.jwt.JwtProvider;
 import com.app.daymoya.global.util.CookieUtil;
+import com.app.daymoya.global.util.MaskingUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import static com.app.daymoya.global.exception.ErrorCode.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
   private final PasswordEncoder passwordEncoder;
@@ -57,7 +59,7 @@ public class AuthService {
 
   /** 로그인 */
   @Transactional(noRollbackFor = AuthException.class)
-  public LoginResponse login(LoginRequest request, HttpServletResponse httpResponse) {
+  public void login(LoginRequest request, HttpServletResponse httpResponse) {
 
     LocalDateTime now = LocalDateTime.now();
 
@@ -115,12 +117,6 @@ public class AuthService {
       member.getId(),
       refreshTokenHash,
       jwtProvider.getRefreshTokenExpirationMs()
-    );
-
-    return new LoginResponse(
-      member.getId(),
-      member.getNickname(),
-      fileService.buildFileUrl(member.getProfileImagePath())
     );
   }
 
@@ -321,6 +317,20 @@ public class AuthService {
   private String getRandomProfileImagePath() {
     int randomIndex = ThreadLocalRandom.current().nextInt(DEFAULT_PROFILE_IMAGES.size());
     return DEFAULT_PROFILE_IMAGES.get(randomIndex);
+  }
+
+  /** 현재 로그인 사용자 정보 조회 */
+  public MeResponse getMe(Long memberId) {
+
+    Member member = memberRepository.findById(memberId)
+      .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+    return new MeResponse(
+      member.getId(),
+      MaskingUtil.maskEmail(member.getEmail()),
+      member.getNickname(),
+      fileService.buildFileUrl(member.getProfileImagePath())
+    );
   }
 
 }
