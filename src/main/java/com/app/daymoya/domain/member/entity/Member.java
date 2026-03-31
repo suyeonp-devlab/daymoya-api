@@ -38,7 +38,7 @@ public class Member extends BaseTimeEntity {
   @Column(nullable = false)
   private String profileImagePath;
 
-  // 상태 (ACTIVE, INACTIVE, SUSPENDED 등)
+  // 상태 (ACTIVE 활성, INACTIVE 탈퇴, SUSPENDED 정지)
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private MemberStatus status;

@@ -20,7 +20,7 @@ COMMENT ON COLUMN members.email IS '이메일 (인증 기반 로그인)';
 COMMENT ON COLUMN members.password IS '비밀번호';
 COMMENT ON COLUMN members.nickname IS '닉네임';
 COMMENT ON COLUMN members.profile_image_path IS '프로필 이미지 상대경로';
-COMMENT ON COLUMN members.status IS '회원 상태 (ACTIVE, INACTIVE, SUSPENDED)';
+COMMENT ON COLUMN members.status IS '회원 상태 (ACTIVE 활성, INACTIVE 탈퇴, SUSPENDED 정지)';
 COMMENT ON COLUMN members.login_fail_count IS '로그인 실패 횟수';
 COMMENT ON COLUMN members.password_changed_at IS '마지막 비밀번호 변경 시각';
 COMMENT ON COLUMN members.last_login_at IS '마지막 로그인 성공 시각';
