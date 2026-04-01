@@ -10,6 +10,7 @@ import com.app.daymoya.domain.auth.repository.redis.SignupVerificationRepository
 import com.app.daymoya.domain.member.entity.Member;
 import com.app.daymoya.domain.member.entity.MemberStatus;
 import com.app.daymoya.domain.member.repository.MemberRepository;
+import com.app.daymoya.domain.schedule.space.service.ScheduleSpaceService;
 import com.app.daymoya.global.constant.JwtConstants;
 import com.app.daymoya.global.exception.AuthException;
 import com.app.daymoya.global.exception.CustomException;
@@ -45,6 +46,7 @@ public class AuthService {
   private final CookieUtil cookieUtil;
   private final Sha256Hash sha256Hash;
   private final MailService mailService;
+  private final ScheduleSpaceService scheduleSpaceService;
   private final MemberRepository memberRepository;
   private final FileService fileService;
   private final RefreshTokenRepository refreshTokenRepository;
@@ -220,6 +222,9 @@ public class AuthService {
      ,now);
 
     memberRepository.save(member);
+
+    // 기본 개인 스케줄 공간 생성
+    scheduleSpaceService.createDefaultPersonalSpace(member.getId());
 
     // 회원가입 성공 후처리 (redis 정리)
     signupVerificationRepository.deleteVerified(request.getEmail());

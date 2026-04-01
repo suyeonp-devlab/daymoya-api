@@ -32,6 +32,7 @@ public enum ErrorCode {
   PASSWORD_SAME_AS_OLD(BAD_REQUEST, "AUTH-010", "기존 비밀번호와 동일한 비밀번호는 사용할 수 없습니다."),
   REFRESH_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "AUTH-011", "리프레시 토큰이 필요합니다."),
   REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH-012", "유효하지 않은 리프레시 토큰입니다."),
+  INVALID_SECURITY_CONTEXT(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH-013", "인증 컨텍스트가 올바르지 않습니다."),
 
   /** =====================================
    * MEMBER 관련

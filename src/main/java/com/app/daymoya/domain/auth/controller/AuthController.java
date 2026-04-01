@@ -4,12 +4,12 @@ import com.app.daymoya.domain.auth.dto.request.*;
 import com.app.daymoya.domain.auth.dto.response.MeResponse;
 import com.app.daymoya.domain.auth.service.AuthService;
 import com.app.daymoya.global.response.ApiResponse;
+import com.app.daymoya.global.security.annotation.CurrentMemberId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static com.app.daymoya.global.constant.JwtConstants.REFRESH_TOKEN_COOKIE_NAME;
@@ -94,9 +94,8 @@ public class AuthController {
 
   /** 현재 로그인 사용자 정보 조회 */
   @GetMapping("/me")
-  public ApiResponse<MeResponse> me(Authentication authentication) {
+  public ApiResponse<MeResponse> me(@CurrentMemberId Long memberId) {
 
-    Long memberId = (Long) authentication.getPrincipal();
     MeResponse me = authService.getMe(memberId);
     return ApiResponse.success(me);
   }
