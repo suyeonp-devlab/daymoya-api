@@ -18,14 +18,19 @@ public enum ErrorCode {
   TOO_MANY_REQUEST(TOO_MANY_REQUESTS, "COMMON-429", "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
 
   /** =====================================
+   * CODE 관련
+   ========================================= */
+  CODE_INVALID(BAD_REQUEST, "CODE-001", "공통코드가 존재하지 않습니다."),
+
+  /** =====================================
    * AUTH 관련
    ========================================= */
   EMAIL_OR_PASSWORD_INVALID(BAD_REQUEST, "AUTH-001", "이메일 또는 비밀번호가 올바르지 않습니다."),
   MEMBER_LOCKED(BAD_REQUEST, "AUTH-002", "잠긴 계정입니다."),
   PASSWORD_CHANGE_REQUIRED(BAD_REQUEST, "AUTH-003", "비밀번호 변경이 필요합니다."),
   EMAIL_ALREADY_EXISTS(BAD_REQUEST, "AUTH-004", "이미 가입된 이메일입니다."),
-  CODE_INVALID(BAD_REQUEST, "AUTH-005", "인증번호가 올바르지 않습니다."),
-  CODE_EXPIRED(BAD_REQUEST, "AUTH-006", "인증번호가 만료되었거나 존재하지 않습니다. 인증번호를 다시 요청해주세요."),
+  AUTH_CODE_INVALID(BAD_REQUEST, "AUTH-005", "인증번호가 올바르지 않습니다."),
+  AUTH_CODE_EXPIRED(BAD_REQUEST, "AUTH-006", "인증번호가 만료되었거나 존재하지 않습니다. 인증번호를 다시 요청해주세요."),
   TOO_MANY_VERIFICATION_ATTEMPTS(BAD_REQUEST, "AUTH-007", "인증 시도 횟수를 초과했습니다. 인증번호를 다시 요청해주세요."),
   PASSWORD_CONFIRM_NOT_MATCH(BAD_REQUEST, "AUTH-008", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
   EMAIL_NOT_VERIFIED(BAD_REQUEST, "AUTH-009", "이메일 인증이 완료되지 않았습니다."),

@@ -166,13 +166,13 @@ public class AuthService {
     // 저장된 인증코드 조회
     String savedCode = signupVerificationRepository.findCode(email);
     if (savedCode == null) {
-      throw new CustomException(CODE_EXPIRED);
+      throw new CustomException(AUTH_CODE_EXPIRED);
     }
 
     // 인증코드 불일치
     if (!sha256Hash.matches(code, savedCode)) {
       signupVerificationRepository.increaseFailCount(email);
-      throw new CustomException(CODE_INVALID);
+      throw new CustomException(AUTH_CODE_INVALID);
     }
 
     // 인증 성공 처리 (redis 정리)
@@ -269,13 +269,13 @@ public class AuthService {
     // 저장된 인증코드 조회
     String savedCode = passwordForgotVerificationRepository.findCode(email);
     if (savedCode == null) {
-      throw new CustomException(CODE_EXPIRED);
+      throw new CustomException(AUTH_CODE_EXPIRED);
     }
 
     // 인증코드 불일치
     if (!sha256Hash.matches(code, savedCode)) {
       passwordForgotVerificationRepository.increaseFailCount(email);
-      throw new CustomException(CODE_INVALID);
+      throw new CustomException(AUTH_CODE_INVALID);
     }
 
     // 인증 성공 처리 (redis 정리)

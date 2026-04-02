@@ -1,12 +1,8 @@
 package com.app.daymoya.domain.schedule.space.entity;
 
-import com.app.daymoya.domain.member.entity.Member;
-import com.app.daymoya.domain.member.entity.MemberStatus;
 import com.app.daymoya.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
