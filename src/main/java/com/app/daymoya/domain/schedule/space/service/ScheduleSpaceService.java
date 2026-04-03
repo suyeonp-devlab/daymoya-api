@@ -5,9 +5,11 @@ import com.app.daymoya.domain.schedule.member.entity.SpaceMemberRole;
 import com.app.daymoya.domain.schedule.member.repository.ScheduleSpaceMemberRepository;
 import com.app.daymoya.domain.schedule.space.dto.request.CreateScheduleSpaceRequest;
 import com.app.daymoya.domain.schedule.space.dto.response.CreateScheduleSpaceResponse;
+import com.app.daymoya.domain.schedule.space.dto.response.ScheduleSpaceResponse;
 import com.app.daymoya.domain.schedule.space.entity.ScheduleSpace;
 import com.app.daymoya.domain.schedule.space.entity.SpaceColor;
 import com.app.daymoya.domain.schedule.space.entity.SpaceType;
+import com.app.daymoya.domain.schedule.space.repository.ScheduleSpaceQueryRepository;
 import com.app.daymoya.domain.schedule.space.repository.ScheduleSpaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,6 +27,7 @@ public class ScheduleSpaceService {
 
   private final ScheduleSpaceRepository scheduleSpaceRepository;
   private final ScheduleSpaceMemberRepository scheduleSpaceMemberRepository;
+  private final ScheduleSpaceQueryRepository scheduleSpaceQueryRepository;
 
   /** (사용자 요청 기반) 스케줄 공간 생성 */
   @Transactional
@@ -47,6 +51,11 @@ public class ScheduleSpaceService {
   @Transactional
   public void createDefaultPersonalSpace(Long memberId) {
     saveSpaceWithOwner(memberId, "기본 일정", null, SpaceType.PERSONAL, SpaceColor.SKY);
+  }
+
+  /** 개인 스케줄 공간 조회 */
+  public List<ScheduleSpaceResponse> findMyPersonalSpaces(Long memberId) {
+    return scheduleSpaceQueryRepository.findScheduleSpaces(memberId, SpaceType.PERSONAL);
   }
 
   /** 스케줄 공간 저장 및 소유자 멤버 지정 */
