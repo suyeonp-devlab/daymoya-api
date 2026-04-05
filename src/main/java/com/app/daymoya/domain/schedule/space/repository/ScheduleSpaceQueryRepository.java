@@ -2,7 +2,7 @@ package com.app.daymoya.domain.schedule.space.repository;
 
 import com.app.daymoya.domain.schedule.member.entity.QScheduleSpaceMember;
 import com.app.daymoya.domain.schedule.member.entity.SpaceMemberStatus;
-import com.app.daymoya.domain.schedule.space.dto.response.PersonaSpaceResponse;
+import com.app.daymoya.domain.schedule.space.dto.response.GroupSpaceResponse;
 import com.app.daymoya.domain.schedule.space.entity.QScheduleSpace;
 import com.app.daymoya.domain.schedule.space.entity.SpaceStatus;
 import com.app.daymoya.domain.schedule.space.entity.SpaceType;
@@ -20,14 +20,14 @@ public class ScheduleSpaceQueryRepository {
   private final JPAQueryFactory jpaQueryFactory;
 
   /** 스케줄 공간 조회 */
-  public List<PersonaSpaceResponse> findScheduleSpaces(Long memberId, SpaceType spaceType) {
+  public List<GroupSpaceResponse> findGroupSpaces(Long memberId, SpaceType spaceType) {
 
     QScheduleSpace ss = QScheduleSpace.scheduleSpace;
     QScheduleSpaceMember ssm = QScheduleSpaceMember.scheduleSpaceMember;
 
     return jpaQueryFactory
       .select(Projections.constructor(
-        PersonaSpaceResponse.class,
+        GroupSpaceResponse.class,
         ss.id,
         ss.name,
         ss.description,

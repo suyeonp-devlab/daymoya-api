@@ -5,7 +5,7 @@ import com.app.daymoya.domain.schedule.member.entity.SpaceMemberRole;
 import com.app.daymoya.domain.schedule.member.repository.ScheduleSpaceMemberRepository;
 import com.app.daymoya.domain.schedule.space.dto.request.CreateScheduleSpaceRequest;
 import com.app.daymoya.domain.schedule.space.dto.response.CreateScheduleSpaceResponse;
-import com.app.daymoya.domain.schedule.space.dto.response.PersonaSpaceResponse;
+import com.app.daymoya.domain.schedule.space.dto.response.GroupSpaceResponse;
 import com.app.daymoya.domain.schedule.space.entity.ScheduleSpace;
 import com.app.daymoya.domain.schedule.space.entity.SpaceColor;
 import com.app.daymoya.domain.schedule.space.entity.SpaceType;
@@ -41,7 +41,7 @@ public class ScheduleSpaceService {
       memberId
      ,request.getName()
      ,request.getDescription()
-     ,request.getSpaceType()
+     ,SpaceType.GROUP
      ,spaceColor);
 
     return new CreateScheduleSpaceResponse(scheduleSpaceId);
@@ -50,12 +50,12 @@ public class ScheduleSpaceService {
   /** (회원가입 시) 기본 개인 스케줄 공간 생성 */
   @Transactional
   public void createDefaultPersonalSpace(Long memberId) {
-    saveSpaceWithOwner(memberId, "기본 일정", null, SpaceType.PERSONAL, SpaceColor.SKY);
+    saveSpaceWithOwner(memberId, "개인 일정", null, SpaceType.PERSONAL, SpaceColor.SKY);
   }
 
-  /** 개인 스케줄 공간 조회 */
-  public List<PersonaSpaceResponse> findMyPersonalSpaces(Long memberId) {
-    return scheduleSpaceQueryRepository.findScheduleSpaces(memberId, SpaceType.PERSONAL);
+  /** 그룹 스케줄 공간 조회 */
+  public List<GroupSpaceResponse> findGroupSpaces(Long memberId) {
+    return scheduleSpaceQueryRepository.findGroupSpaces(memberId, SpaceType.GROUP);
   }
 
   /** 스케줄 공간 저장 및 소유자 멤버 지정 */

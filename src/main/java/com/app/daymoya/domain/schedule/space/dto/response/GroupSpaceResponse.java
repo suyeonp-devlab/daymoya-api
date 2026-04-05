@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PersonaSpaceResponse {
+public class GroupSpaceResponse {
 
   private Long scheduleSpaceId;
   private String name;

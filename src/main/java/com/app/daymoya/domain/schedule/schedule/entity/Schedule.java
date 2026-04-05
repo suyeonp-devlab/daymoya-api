@@ -33,6 +33,10 @@ public class Schedule extends BaseTimeEntity {
   @Column(nullable = false)
   private Long assigneeMemberId;
 
+  // 카테고리 코드
+  @Column(nullable = false, length = 20)
+  private String categoryCode;
+
   // 스케줄 제목
   @Column(nullable = false, length = 100)
   private String title;

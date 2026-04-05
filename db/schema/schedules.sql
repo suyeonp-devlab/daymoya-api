@@ -3,6 +3,7 @@ CREATE TABLE schedules (
   schedule_space_id BIGINT NOT NULL,
   created_member_id BIGINT NOT NULL,
   assignee_member_id BIGINT NOT NULL,
+  category_code VARCHAR(20) NOT NULL,
   title VARCHAR(100) NOT NULL,
   description TEXT NULL,
   start_at TIMESTAMP NOT NULL,
@@ -27,6 +28,7 @@ COMMENT ON COLUMN schedules.id IS '스케줄 PK';
 COMMENT ON COLUMN schedules.schedule_space_id IS '스케줄 공간 ID';
 COMMENT ON COLUMN schedules.created_member_id IS '스케줄 생성 회원 ID';
 COMMENT ON COLUMN schedules.assignee_member_id IS '스케줄 담당 회원 ID';
+COMMENT ON COLUMN schedules.category_code IS '카테고리 코드';
 COMMENT ON COLUMN schedules.title IS '스케줄 제목';
 COMMENT ON COLUMN schedules.description IS '스케줄 설명';
 COMMENT ON COLUMN schedules.start_at IS '시작 일시';
