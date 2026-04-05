@@ -48,7 +48,7 @@ public class Schedule extends BaseTimeEntity {
   @Column(nullable = false)
   private LocalDateTime endAt;
 
-  // 스케줄 상태 (IN_PROGRESS 진행중, COMPLETED 완료, COMPLETED_LATE 지연 완료, CANCELED 삭제)
+  // 스케줄 상태 (IN_PROGRESS 진행중, COMPLETED 완료, CANCELED 삭제)
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private ScheduleStatus status;

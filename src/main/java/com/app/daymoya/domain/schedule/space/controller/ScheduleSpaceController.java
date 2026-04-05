@@ -2,7 +2,7 @@ package com.app.daymoya.domain.schedule.space.controller;
 
 import com.app.daymoya.domain.schedule.space.dto.request.CreateScheduleSpaceRequest;
 import com.app.daymoya.domain.schedule.space.dto.response.CreateScheduleSpaceResponse;
-import com.app.daymoya.domain.schedule.space.dto.response.ScheduleSpaceResponse;
+import com.app.daymoya.domain.schedule.space.dto.response.PersonaSpaceResponse;
 import com.app.daymoya.domain.schedule.space.service.ScheduleSpaceService;
 import com.app.daymoya.global.response.ApiResponse;
 import com.app.daymoya.global.security.annotation.CurrentMemberId;
@@ -33,9 +33,9 @@ public class ScheduleSpaceController {
 
   /** 개인 스케줄 공간 조회 */
   @PostMapping("/personal")
-  public ApiResponse<List<ScheduleSpaceResponse>> findMyPersonalSpaces(@CurrentMemberId Long memberId) {
+  public ApiResponse<List<PersonaSpaceResponse>> findMyPersonalSpaces(@CurrentMemberId Long memberId) {
 
-    List<ScheduleSpaceResponse> response = scheduleSpaceService.findMyPersonalSpaces(memberId);
+    List<PersonaSpaceResponse> response = scheduleSpaceService.findMyPersonalSpaces(memberId);
     return ApiResponse.success(response);
   }
 

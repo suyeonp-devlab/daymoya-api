@@ -31,7 +31,7 @@ COMMENT ON COLUMN schedules.title IS '스케줄 제목';
 COMMENT ON COLUMN schedules.description IS '스케줄 설명';
 COMMENT ON COLUMN schedules.start_at IS '시작 일시';
 COMMENT ON COLUMN schedules.end_at IS '종료 일시';
-COMMENT ON COLUMN schedules.status IS '스케줄 상태 (IN_PROGRESS 진행중, COMPLETED 완료, COMPLETED_LATE 지연 완료, CANCELED 삭제)';
+COMMENT ON COLUMN schedules.status IS '스케줄 상태 (IN_PROGRESS 진행중, COMPLETED 완료, CANCELED 삭제)';
 COMMENT ON COLUMN schedules.completed_at IS '완료 시각';
 COMMENT ON COLUMN schedules.canceled_at IS '삭제 시각';
 COMMENT ON COLUMN schedules.created_at IS '생성 시각';

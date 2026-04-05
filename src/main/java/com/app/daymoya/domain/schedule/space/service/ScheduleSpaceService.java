@@ -5,7 +5,7 @@ import com.app.daymoya.domain.schedule.member.entity.SpaceMemberRole;
 import com.app.daymoya.domain.schedule.member.repository.ScheduleSpaceMemberRepository;
 import com.app.daymoya.domain.schedule.space.dto.request.CreateScheduleSpaceRequest;
 import com.app.daymoya.domain.schedule.space.dto.response.CreateScheduleSpaceResponse;
-import com.app.daymoya.domain.schedule.space.dto.response.ScheduleSpaceResponse;
+import com.app.daymoya.domain.schedule.space.dto.response.PersonaSpaceResponse;
 import com.app.daymoya.domain.schedule.space.entity.ScheduleSpace;
 import com.app.daymoya.domain.schedule.space.entity.SpaceColor;
 import com.app.daymoya.domain.schedule.space.entity.SpaceType;
@@ -54,7 +54,7 @@ public class ScheduleSpaceService {
   }
 
   /** 개인 스케줄 공간 조회 */
-  public List<ScheduleSpaceResponse> findMyPersonalSpaces(Long memberId) {
+  public List<PersonaSpaceResponse> findMyPersonalSpaces(Long memberId) {
     return scheduleSpaceQueryRepository.findScheduleSpaces(memberId, SpaceType.PERSONAL);
   }
 
