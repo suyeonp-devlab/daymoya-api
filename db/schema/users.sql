@@ -10,7 +10,7 @@ CREATE TABLE users (
   password_changed_at TIMESTAMPTZ,
   last_login_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ,
   deleted_at TIMESTAMPTZ,
   CONSTRAINT ck_users_status CHECK (status IN ('ACTIVE', 'WITHDRAWN', 'SUSPENDED')),
   CONSTRAINT ck_users_failed_login_count CHECK (failed_login_count >= 0),
