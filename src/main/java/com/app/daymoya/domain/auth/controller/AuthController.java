@@ -4,7 +4,7 @@ import com.app.daymoya.domain.auth.dto.request.*;
 import com.app.daymoya.domain.auth.dto.response.MeResponse;
 import com.app.daymoya.domain.auth.service.AuthService;
 import com.app.daymoya.global.response.ApiResponse;
-import com.app.daymoya.global.security.annotation.CurrentMemberId;
+import com.app.daymoya.global.security.annotation.CurrentUserId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -22,22 +22,15 @@ public class AuthController {
 
   private final AuthService authService;
 
-  /** 로그인 */
-  @PostMapping("/public/login")
-  public ApiResponse<Void> login(@Valid @RequestBody LoginRequest request
-                                         ,HttpServletResponse httpResponse) {
-
-    authService.login(request, httpResponse);
-    return ApiResponse.success(null);
-  }
-
   /** 회원가입 메일 인증코드 전송 */
   @PostMapping("/public/signup/code")
   public ApiResponse<Void> sendSignupCode(@Valid @RequestBody SignupCodeRequest request
                                          ,HttpServletRequest httpRequest) {
 
     String ip = getClientIp(httpRequest);
-    authService.sendSignupCode(request.getEmail(), ip);
+    String email = request.getEmail().trim().toLowerCase();
+
+    authService.sendSignupCode(email, ip);
     return ApiResponse.success(null);
   }
 
@@ -45,7 +38,9 @@ public class AuthController {
   @PostMapping("/public/signup/code/verify")
   public ApiResponse<Void> verifySignupCode(@Valid @RequestBody VerifySignupCodeRequest request) {
 
-    authService.verifySignupCode(request.getEmail(), request.getCode());
+    String email = request.getEmail().trim().toLowerCase();
+
+    authService.verifySignupCode(email, request.getCode());
     return ApiResponse.success(null);
   }
 
@@ -59,11 +54,22 @@ public class AuthController {
     return ApiResponse.success(null);
   }
 
+  /** 로그인 */
+  @PostMapping("/public/login")
+  public ApiResponse<Void> login(@Valid @RequestBody LoginRequest request
+                                ,HttpServletResponse httpResponse) {
+
+    authService.login(request, httpResponse);
+    return ApiResponse.success(null);
+  }
+
   /** 비밀번호 찾기 메일 인증코드 전송 */
   @PostMapping("/public/password/forgot/code")
   public ApiResponse<Void> sendPasswordForgotCode(@Valid @RequestBody PasswordForgotCodeRequest request) {
 
-    authService.sendPasswordForgotCode(request.getEmail());
+    String email = request.getEmail().trim().toLowerCase();
+
+    authService.sendPasswordForgotCode(email);
     return ApiResponse.success(null);
   }
 
@@ -71,15 +77,18 @@ public class AuthController {
   @PostMapping("/public/password/forgot/code/verify")
   public ApiResponse<Void> verifyPasswordForgotCode(@Valid @RequestBody VerifyPasswordForgotCodeRequest request) {
 
-    authService.verifyPasswordForgotCode(request.getEmail(), request.getCode());
+    String email = request.getEmail().trim().toLowerCase();
+
+    authService.verifyPasswordForgotCode(email, request.getCode());
     return ApiResponse.success(null);
   }
 
   /** 비밀번호 재설정 */
   @PostMapping("/public/password/forgot/reset")
-  public ApiResponse<Void> resetForgottenPassword(@Valid @RequestBody PasswordForgotResetRequest request) {
+  public ApiResponse<Void> resetForgottenPassword(@Valid @RequestBody PasswordForgotResetRequest request
+                                                 ,HttpServletResponse httpResponse) {
 
-    authService.resetForgottenPassword(request);
+    authService.resetForgottenPassword(request, httpResponse);
     return ApiResponse.success(null);
   }
 
@@ -94,10 +103,19 @@ public class AuthController {
 
   /** 현재 로그인 사용자 정보 조회 */
   @GetMapping("/me")
-  public ApiResponse<MeResponse> me(@CurrentMemberId Long memberId) {
+  public ApiResponse<MeResponse> me(@CurrentUserId Long userId) {
 
-    MeResponse me = authService.getMe(memberId);
+    MeResponse me = authService.getMe(userId);
     return ApiResponse.success(me);
+  }
+
+  /** 로그아웃 */
+  @PostMapping("/logout")
+  public ApiResponse<Void> logout(@CurrentUserId Long userId
+                                 ,HttpServletResponse httpResponse) {
+
+    authService.logout(userId, httpResponse);
+    return ApiResponse.success(null);
   }
 
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MeResponse {
 
-  private Long memberId;
+  private Long userId;
   private String email;
   private String nickname;
   private String profileImageUrl;

@@ -38,7 +38,6 @@ public class SecurityConfig {
       .authorizeHttpRequests(auth -> auth
         // 인증 미사용 api
         .requestMatchers("/api/auth/public/**").permitAll()
-        .requestMatchers("/uploads/**").permitAll()
         .requestMatchers("/health").permitAll()
         // 나머지 api는 인증 사용
         .anyRequest().authenticated()

@@ -18,12 +18,6 @@ public enum FileDirectory {
     ,5 * 1024 * 1024
     ,Set.of("jpg", "jpeg", "png", "webp")
     ,Set.of("image/jpg", "image/jpeg", "image/png", "image/webp")
-  ),
-  COMMUNITY(
-    "community"
-    ,2 * 1024 * 1024
-    ,Set.of("jpg", "jpeg", "png", "webp")
-    ,Set.of("image/jpg", "image/jpeg", "image/png", "image/webp")
   );
 
   private final String path;

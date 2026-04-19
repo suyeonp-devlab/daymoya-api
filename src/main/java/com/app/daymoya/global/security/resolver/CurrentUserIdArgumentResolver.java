@@ -1,7 +1,7 @@
 package com.app.daymoya.global.security.resolver;
 
 import com.app.daymoya.global.exception.CustomException;
-import com.app.daymoya.global.security.annotation.CurrentMemberId;
+import com.app.daymoya.global.security.annotation.CurrentUserId;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import static com.app.daymoya.global.exception.ErrorCode.INVALID_SECURITY_CONTEXT;
 
 @Component
-public class CurrentMemberIdArgumentResolver implements HandlerMethodArgumentResolver {
+public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    return parameter.hasParameterAnnotation(CurrentMemberId.class)
+    return parameter.hasParameterAnnotation(CurrentUserId.class)
       && Long.class.equals(parameter.getParameterType());
   }
 
@@ -40,11 +40,11 @@ public class CurrentMemberIdArgumentResolver implements HandlerMethodArgumentRes
       throw new CustomException(INVALID_SECURITY_CONTEXT);
     }
 
-    if (!(principal instanceof Long memberId)) {
+    if (!(principal instanceof Long userId)) {
       throw new CustomException(INVALID_SECURITY_CONTEXT);
     }
 
-    return memberId;
+    return userId;
   }
 
 }

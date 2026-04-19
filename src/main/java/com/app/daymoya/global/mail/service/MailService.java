@@ -26,10 +26,10 @@ public class MailService {
     CreateEmailOptions options = CreateEmailOptions.builder()
       .from(mailProperties.getFrom())
       .to(toEmail)
-      .subject("[Daymoya] 이메일 인증 코드 테스트")
+      .subject("[Daymoya] 인증 코드")
       .html("""
             <div>
-              <h2>이메일 인증코드</h2>
+              <h2>Daymoya 인증코드</h2>
               <p>아래 인증코드를 입력해주세요.</p>
               <h1 style="letter-spacing: 4px;">%s</h1>
               <p>인증코드는 5분간 유효합니다.</p>

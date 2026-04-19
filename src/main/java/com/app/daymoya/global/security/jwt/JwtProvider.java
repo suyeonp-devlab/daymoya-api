@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
-import static com.app.daymoya.global.constant.JwtConstants.EMAIL_CLAIM;
-
 @Component
 public class JwtProvider {
 
@@ -28,14 +26,13 @@ public class JwtProvider {
     this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
   }
 
-  public String generateAccessToken(Long memberId, String email) {
+  public String generateAccessToken(Long userId) {
 
     Date now = new Date();
     Date expiration = new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMs());
 
     return Jwts.builder()
-      .subject(String.valueOf(memberId))
-      .claim(EMAIL_CLAIM, email)
+      .subject(String.valueOf(userId))
       .claim(JwtConstants.TOKEN_TYPE_CLAIM, JwtConstants.ACCESS_TOKEN_TYPE)
       .issuedAt(now)
       .expiration(expiration)
@@ -43,13 +40,13 @@ public class JwtProvider {
       .compact();
   }
 
-  public String generateRefreshToken(Long memberId) {
+  public String generateRefreshToken(Long userId) {
 
     Date now = new Date();
     Date expiration = new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMs());
 
     return Jwts.builder()
-      .subject(String.valueOf(memberId))
+      .subject(String.valueOf(userId))
       .claim(JwtConstants.TOKEN_TYPE_CLAIM, JwtConstants.REFRESH_TOKEN_TYPE)
       .issuedAt(now)
       .expiration(expiration)
@@ -75,14 +72,9 @@ public class JwtProvider {
     }
   }
 
-  public Long getMemberId(String token) {
+  public Long getUserId(String token) {
     Claims claims = getClaims(token);
     return Long.valueOf(claims.getSubject());
-  }
-
-  public String getEmail(String token) {
-    Claims claims = getClaims(token);
-    return claims.get(EMAIL_CLAIM, String.class);
   }
 
   public String getTokenType(String token) {
@@ -93,9 +85,9 @@ public class JwtProvider {
   public Authentication getAuthentication(String token) {
 
     Claims claims = getClaims(token);
-    Long memberId = Long.valueOf(claims.getSubject());
+    Long userId = Long.valueOf(claims.getSubject());
 
-    return new UsernamePasswordAuthenticationToken(memberId, null, List.of());
+    return new UsernamePasswordAuthenticationToken(userId, null, List.of());
   }
 
   public long getAccessTokenExpirationMs() {

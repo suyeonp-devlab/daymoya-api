@@ -1,7 +1,7 @@
 package com.app.daymoya.global.config;
 
 import com.app.daymoya.global.properties.FileProperties;
-import com.app.daymoya.global.security.resolver.CurrentMemberIdArgumentResolver;
+import com.app.daymoya.global.security.resolver.CurrentUserIdArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -17,7 +17,7 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
   private final FileProperties fileProperties;
-  private final CurrentMemberIdArgumentResolver currentMemberIdArgumentResolver;
+  private final CurrentUserIdArgumentResolver currentUserIdArgumentResolver;
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -29,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    resolvers.add(currentMemberIdArgumentResolver);
+    resolvers.add(currentUserIdArgumentResolver);
   }
 
 }

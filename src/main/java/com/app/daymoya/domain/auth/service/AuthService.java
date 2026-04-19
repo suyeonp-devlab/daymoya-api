@@ -7,10 +7,9 @@ import com.app.daymoya.domain.auth.dto.response.MeResponse;
 import com.app.daymoya.domain.auth.repository.redis.PasswordForgotVerificationRepository;
 import com.app.daymoya.domain.auth.repository.redis.RefreshTokenRepository;
 import com.app.daymoya.domain.auth.repository.redis.SignupVerificationRepository;
-import com.app.daymoya.domain.member.entity.Member;
-import com.app.daymoya.domain.member.entity.MemberStatus;
-import com.app.daymoya.domain.member.repository.MemberRepository;
-import com.app.daymoya.domain.schedule.space.service.ScheduleSpaceService;
+import com.app.daymoya.domain.users.entity.User;
+import com.app.daymoya.domain.users.entity.UserStatus;
+import com.app.daymoya.domain.users.repository.UserRepository;
 import com.app.daymoya.global.constant.JwtConstants;
 import com.app.daymoya.global.exception.AuthException;
 import com.app.daymoya.global.exception.CustomException;
@@ -46,88 +45,26 @@ public class AuthService {
   private final CookieUtil cookieUtil;
   private final Sha256Hash sha256Hash;
   private final MailService mailService;
-  private final ScheduleSpaceService scheduleSpaceService;
-  private final MemberRepository memberRepository;
+  private final UserRepository userRepository;
   private final FileService fileService;
   private final RefreshTokenRepository refreshTokenRepository;
   private final SignupVerificationRepository signupVerificationRepository;
   private final PasswordForgotVerificationRepository passwordForgotVerificationRepository;
 
   private static final int CODE_FAIL_CNT = 5;
+
   private static final List<String> DEFAULT_PROFILE_IMAGES = List.of(
      "profile/default-profile(1).png"
     ,"profile/default-profile(2).png"
     ,"profile/default-profile(3).png"
     ,"profile/default-profile(4).png");
 
-  /** 로그인 */
-  @Transactional(noRollbackFor = AuthException.class)
-  public void login(LoginRequest request, HttpServletResponse httpResponse) {
-
-    LocalDateTime now = LocalDateTime.now();
-
-    // 이메일 조회
-    Member member = memberRepository.findByEmail(request.getEmail())
-      .orElseThrow(() -> new AuthException(EMAIL_OR_PASSWORD_INVALID));
-
-    // 상태 확인
-    if (member.getStatus() != MemberStatus.ACTIVE) {
-      throw new AuthException(MEMBER_LOCKED);
-    }
-
-    // 비밀번호 오입력 횟수 확인
-    if (member.isPasswordChangeRequired()) {
-      throw new AuthException(PASSWORD_CHANGE_REQUIRED);
-    }
-
-    // 비밀번호 일치 여부 확인
-    if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-
-      member.increaseLoginFailCount();
-
-      // 비밀번호 변경 유도
-      if (member.isPasswordChangeRequired()) {
-        throw new AuthException(PASSWORD_CHANGE_REQUIRED);
-      }
-
-      throw new AuthException(EMAIL_OR_PASSWORD_INVALID);
-    }
-
-    // 로그인 성공 처리
-    member.successLogin(now);
-
-    // token 발급 및 쿠키 저장
-    String accessToken = jwtProvider.generateAccessToken(member.getId(), member.getEmail());
-    String refreshToken = jwtProvider.generateRefreshToken(member.getId());
-    String refreshTokenHash = sha256Hash.hash(refreshToken);
-
-    cookieUtil.addCookie(
-      httpResponse,
-      JwtConstants.ACCESS_TOKEN_COOKIE_NAME,
-      accessToken,
-      (int) (jwtProvider.getAccessTokenExpirationMs() / 1000)
-    );
-
-    cookieUtil.addCookie(
-      httpResponse,
-      JwtConstants.REFRESH_TOKEN_COOKIE_NAME,
-      refreshToken,
-      (int) (jwtProvider.getRefreshTokenExpirationMs() / 1000)
-    );
-
-    // refresh token 저장
-    refreshTokenRepository.saveToken(
-      member.getId(),
-      refreshTokenHash,
-      jwtProvider.getRefreshTokenExpirationMs()
-    );
-  }
 
   /** 회원가입 메일 인증코드 전송 */
   public void sendSignupCode(String email, String ip){
 
     // 가입여부
-    if (memberRepository.existsByEmail(email)) {
+    if (userRepository.existsByEmailAndDeletedAtIsNull(email)) {
       throw new CustomException(EMAIL_ALREADY_EXISTS);
     }
 
@@ -187,9 +124,10 @@ public class AuthService {
   public void signup(SignupRequest request, String ip) {
 
     LocalDateTime now = LocalDateTime.now();
+    String email = request.getEmail().trim().toLowerCase();
 
     // 가입여부
-    if (memberRepository.existsByEmail(request.getEmail())) {
+    if (userRepository.existsByEmailAndDeletedAtIsNull(email)) {
       throw new CustomException(EMAIL_ALREADY_EXISTS);
     }
 
@@ -199,7 +137,7 @@ public class AuthService {
     }
 
     // 이메일 인증 완료 여부
-    String verifiedCode = signupVerificationRepository.findVerified(request.getEmail());
+    String verifiedCode = signupVerificationRepository.findVerified(email);
     if (verifiedCode == null) {
       throw new CustomException(EMAIL_NOT_VERIFIED);
     }
@@ -214,29 +152,90 @@ public class AuthService {
     }
 
     // 회원가입
-    Member member = Member.create(
-      request.getEmail()
-     ,passwordEncoder.encode(request.getPassword())
-     ,request.getNickname()
-     ,profileImagePath
-     ,now);
+    User user = User.create(
+       email
+      ,passwordEncoder.encode(request.getPassword())
+      ,request.getNickname()
+      ,profileImagePath
+      ,now);
 
-    memberRepository.save(member);
-
-    // 기본 개인 스케줄 공간 생성
-    scheduleSpaceService.createDefaultPersonalSpace(member.getId());
+    userRepository.save(user);
 
     // 회원가입 성공 후처리 (redis 정리)
-    signupVerificationRepository.deleteVerified(request.getEmail());
+    signupVerificationRepository.deleteVerified(email);
     signupVerificationRepository.saveIpLimit(ip);
+  }
+
+  /** 로그인 */
+  @Transactional(noRollbackFor = AuthException.class)
+  public void login(LoginRequest request, HttpServletResponse httpResponse) {
+
+    LocalDateTime now = LocalDateTime.now();
+    String email = request.getEmail().trim().toLowerCase();
+
+    // 이메일 조회
+    User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+      .orElseThrow(() -> new AuthException(EMAIL_OR_PASSWORD_INVALID));
+
+    // 상태 확인
+    if (user.getStatus() != UserStatus.ACTIVE) {
+      throw new AuthException(USER_LOCKED);
+    }
+
+    // 비밀번호 오입력 횟수 확인
+    if (user.isPasswordChangeRequired()) {
+      throw new AuthException(PASSWORD_CHANGE_REQUIRED);
+    }
+
+    // 비밀번호 일치 여부 확인
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
+      user.increaseFailedLoginCount();
+
+      // 비밀번호 변경 유도
+      if (user.isPasswordChangeRequired()) {
+        throw new AuthException(PASSWORD_CHANGE_REQUIRED);
+      }
+
+      throw new AuthException(EMAIL_OR_PASSWORD_INVALID);
+    }
+
+    // 로그인 성공 처리
+    user.successLogin(now);
+
+    // token 발급 및 쿠키 저장
+    String accessToken = jwtProvider.generateAccessToken(user.getId());
+    String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+    String refreshTokenHash = sha256Hash.hash(refreshToken);
+
+    cookieUtil.addCookie(
+      httpResponse,
+      JwtConstants.ACCESS_TOKEN_COOKIE_NAME,
+      accessToken,
+      (int) (jwtProvider.getAccessTokenExpirationMs() / 1000)
+    );
+
+    cookieUtil.addCookie(
+      httpResponse,
+      JwtConstants.REFRESH_TOKEN_COOKIE_NAME,
+      refreshToken,
+      (int) (jwtProvider.getRefreshTokenExpirationMs() / 1000)
+    );
+
+    // refresh token 저장
+    refreshTokenRepository.saveToken(
+      refreshTokenHash,
+      user.getId(),
+      jwtProvider.getRefreshTokenExpirationMs()
+    );
   }
 
   /** 비밀번호 찾기 메일 인증코드 전송 */
   public void sendPasswordForgotCode(String email) {
 
     // 가입여부
-    if (!memberRepository.existsByEmail(email)) {
-      throw new CustomException(MEMBER_NOT_FOUND);
+    if (!userRepository.existsByEmailAndDeletedAtIsNull(email)) {
+      throw new CustomException(USER_NOT_FOUND);
     }
 
     // 메일 재전송 제한 - 쿨다운
@@ -287,13 +286,14 @@ public class AuthService {
 
   /** 비밀번호 재설정 */
   @Transactional
-  public void resetForgottenPassword(PasswordForgotResetRequest request) {
+  public void resetForgottenPassword(PasswordForgotResetRequest request, HttpServletResponse httpResponse) {
 
     LocalDateTime now = LocalDateTime.now();
+    String email = request.getEmail().trim().toLowerCase();
 
     // 이메일 조회
-    Member member = memberRepository.findByEmail(request.getEmail())
-      .orElseThrow(() -> new AuthException(MEMBER_NOT_FOUND));
+    User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+      .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
 
     // 비밀번호와 비밀번호확인 일치 여부
     if(!request.isPasswordMatched()) {
@@ -301,22 +301,25 @@ public class AuthService {
     }
 
     // 이메일 인증 완료 여부
-    String verifiedCode = passwordForgotVerificationRepository.findVerified(request.getEmail());
+    String verifiedCode = passwordForgotVerificationRepository.findVerified(email);
     if (verifiedCode == null) {
       throw new CustomException(EMAIL_NOT_VERIFIED);
     }
 
     // 이전 비밀번호와 일치 여부
-    if (passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+    if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       throw new CustomException(PASSWORD_SAME_AS_OLD);
     }
 
     // 비밀번호 변경
-    member.changePassword(passwordEncoder.encode(request.getPassword()), now);
+    user.changePassword(passwordEncoder.encode(request.getPassword()), now);
 
-    // 비밀번호 변경 성공 후처리 (redis 정리)
-    passwordForgotVerificationRepository.deleteVerified(request.getEmail());
-    refreshTokenRepository.deleteToken(member.getId());
+    // 비밀번호 변경 성공 후처리 (쿠키, redis 정리)
+    cookieUtil.deleteCookie(httpResponse, JwtConstants.ACCESS_TOKEN_COOKIE_NAME);
+    cookieUtil.deleteCookie(httpResponse, JwtConstants.REFRESH_TOKEN_COOKIE_NAME);
+
+    passwordForgotVerificationRepository.deleteVerified(email);
+    refreshTokenRepository.deleteAllByUserId(user.getId());
   }
 
   /** access token 재발급 */
@@ -331,20 +334,16 @@ public class AuthService {
       throw new CustomException(REFRESH_TOKEN_INVALID);
     }
 
-    Long memberId = jwtProvider.getMemberId(refreshToken);
+    Long userId = jwtProvider.getUserId(refreshToken);
     String refreshTokenHash = sha256Hash.hash(refreshToken);
 
-    String savedRefreshToken = refreshTokenRepository.findToken(memberId);
-    if (!StringUtils.hasText(savedRefreshToken) || !refreshTokenHash.equals(savedRefreshToken)) {
+    Long savedUserId = refreshTokenRepository.findUserIdByToken(refreshTokenHash).orElse(null);
+    if (savedUserId == null || !savedUserId.equals(userId)) {
       throw new CustomException(REFRESH_TOKEN_INVALID);
     }
 
-    // 사용자 조회
-    Member member = memberRepository.findById(memberId)
-      .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-
     // token 발급 및 쿠키 저장
-    String newAccessToken = jwtProvider.generateAccessToken(member.getId(), member.getEmail());
+    String newAccessToken = jwtProvider.generateAccessToken(savedUserId);
 
     cookieUtil.addCookie(
       httpResponse,
@@ -355,17 +354,28 @@ public class AuthService {
   }
 
   /** 현재 로그인 사용자 정보 조회 */
-  public MeResponse getMe(Long memberId) {
+  public MeResponse getMe(Long userId) {
 
-    Member member = memberRepository.findById(memberId)
-      .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
     return new MeResponse(
-      member.getId(),
-      MaskingUtil.maskEmail(member.getEmail()),
-      member.getNickname(),
-      fileService.buildFileUrl(member.getProfileImagePath())
+      user.getId(),
+      MaskingUtil.maskEmail(user.getEmail()),
+      user.getNickname(),
+      fileService.buildFileUrl(user.getProfileImagePath())
     );
+  }
+
+  /** 로그아웃 */
+  public void logout(Long userId, HttpServletResponse httpResponse) {
+
+    // 쿠키 삭제
+    cookieUtil.deleteCookie(httpResponse, JwtConstants.ACCESS_TOKEN_COOKIE_NAME);
+    cookieUtil.deleteCookie(httpResponse, JwtConstants.REFRESH_TOKEN_COOKIE_NAME);
+
+    // refresh token 삭제
+    refreshTokenRepository.deleteAllByUserId(userId);
   }
 
   /** 랜덤 프로필 선택 */

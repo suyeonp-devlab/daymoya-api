@@ -7,8 +7,12 @@ public final class RedisKeys {
   /** =====================================
    * AUTH 관련
   ========================================= */
-  public static String refreshTokenKey(Long memberId){
-    return "auth:refresh:" + memberId;
+  public static String refreshTokenKey(String tokenHash) {
+    return "auth:refresh:" + tokenHash;
+  }
+
+  public static String userRefreshTokenSetKey(Long userId) {
+    return "auth:refresh:user:" + userId;
   }
 
   public static String signupCodeKey(String email) {
