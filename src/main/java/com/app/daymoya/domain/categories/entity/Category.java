@@ -1,4 +1,4 @@
-package com.app.daymoya.domain.taskCategories.entity;
+package com.app.daymoya.domain.categories.entity;
 
 import com.app.daymoya.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -8,12 +8,12 @@ import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@Table(name = "task_categories")
+@Table(name = "categories")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class TaskCategory extends BaseTimeEntity {
+public class Category extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class TaskCategory extends BaseTimeEntity {
   // 카테고리 범위
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
-  private TaskCategoryScopeType scopeType;
+  private CategoryScopeType scopeType;
 
   // 사용자 ID
   private Long scopeUserId;
@@ -43,16 +43,16 @@ public class TaskCategory extends BaseTimeEntity {
   private Integer displayOrder;
 
   /** 개인 카테고리 생성 */
-  public static TaskCategory createPersonal(
+  public static Category createPersonal(
      String name
     ,Long scopeUserId
     ,String color
     ,Integer displayOrder
   ) {
 
-    return TaskCategory.builder()
+    return Category.builder()
       .name(name)
-      .scopeType(TaskCategoryScopeType.PERSONAL)
+      .scopeType(CategoryScopeType.PERSONAL)
       .scopeUserId(scopeUserId)
       .color(color)
       .displayOrder(displayOrder)

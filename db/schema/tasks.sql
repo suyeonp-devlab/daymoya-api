@@ -20,7 +20,7 @@ CREATE TABLE tasks (
 );
 
 -- 카테고리 fk
-ALTER TABLE tasks ADD CONSTRAINT fk_tasks_category FOREIGN KEY (category_id) REFERENCES task_categories(id);
+ALTER TABLE tasks ADD CONSTRAINT fk_tasks_category FOREIGN KEY (category_id) REFERENCES categories(id);
 
 --(추후) 그룹 fk
 -- ALTER TABLE tasks ADD CONSTRAINT fk_tasks_group FOREIGN KEY (group_id) REFERENCES groups(id);
@@ -42,7 +42,7 @@ COMMENT ON COLUMN tasks.status IS '일정 상태';
 COMMENT ON COLUMN tasks.start_at IS '시작 시각';
 COMMENT ON COLUMN tasks.due_at IS '마감 시각';
 COMMENT ON COLUMN tasks.completed_at IS '완료 시각';
-COMMENT ON COLUMN tasks.category_id IS '카테고리 ID (task_categories.id)';
+COMMENT ON COLUMN tasks.category_id IS '카테고리 ID (categories.id)';
 COMMENT ON COLUMN tasks.created_by IS '생성자 ID (users.id)';
 COMMENT ON COLUMN tasks.assignee_id IS '담당자 ID (users.id)';
 COMMENT ON COLUMN tasks.group_id IS '그룹 ID (groups.id)';

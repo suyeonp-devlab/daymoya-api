@@ -1,12 +1,12 @@
-package com.app.daymoya.domain.taskCategories.service;
+package com.app.daymoya.domain.categories.service;
 
-import com.app.daymoya.domain.taskCategories.dto.request.CreateTaskCategoryRequest;
-import com.app.daymoya.domain.taskCategories.dto.request.UpdateTaskCategoryOrderRequest;
-import com.app.daymoya.domain.taskCategories.dto.request.UpdateTaskCategoryRequest;
-import com.app.daymoya.domain.taskCategories.dto.response.TaskCategoryItem;
-import com.app.daymoya.domain.taskCategories.entity.TaskCategory;
-import com.app.daymoya.domain.taskCategories.repository.TaskCategoryQueryRepository;
-import com.app.daymoya.domain.taskCategories.repository.TaskCategoryRepository;
+import com.app.daymoya.domain.categories.dto.request.CreateCategoryRequest;
+import com.app.daymoya.domain.categories.dto.request.UpdateCategoryOrderRequest;
+import com.app.daymoya.domain.categories.dto.request.UpdateCategoryRequest;
+import com.app.daymoya.domain.categories.dto.response.CategoryItem;
+import com.app.daymoya.domain.categories.entity.Category;
+import com.app.daymoya.domain.categories.repository.CategoryQueryRepository;
+import com.app.daymoya.domain.categories.repository.CategoryRepository;
 import com.app.daymoya.domain.tasks.repository.TaskRepository;
 import com.app.daymoya.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -20,66 +20,66 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.app.daymoya.domain.taskCategories.entity.TaskCategoryScopeType.*;
+import static com.app.daymoya.domain.categories.entity.CategoryScopeType.*;
 import static com.app.daymoya.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TaskCategoryService {
+public class CategoryService {
 
-  private final TaskCategoryRepository taskCategoryRepository;
-  private final TaskCategoryQueryRepository taskCategoryQueryRepository;
+  private final CategoryRepository categoryRepository;
+  private final CategoryQueryRepository categoryQueryRepository;
   private final TaskRepository taskRepository;
 
   /** 개인 카테고리 조회 */
-  public List<TaskCategoryItem> getPersonalTaskCategories(Long userId) {
-    return taskCategoryQueryRepository.findPersonalTaskCategories(userId);
+  public List<CategoryItem> getPersonalCategories(Long userId) {
+    return categoryQueryRepository.findPersonalCategories(userId);
   }
 
   /** 개인 카테고리 등록 */
   @Transactional
-  public Long createPersonalTaskCategory(Long userId, CreateTaskCategoryRequest request) {
+  public Long createPersonalCategory(Long userId, CreateCategoryRequest request) {
 
     String categoryName = request.getName().trim().toLowerCase();
 
     // 카테고리 이름 중복 검사
-    boolean existsName = taskCategoryQueryRepository.existsPersonalCategoryName(userId, categoryName);
+    boolean existsName = categoryQueryRepository.existsPersonalCategoryName(userId, categoryName);
 
     if (existsName) {
       throw new CustomException(CATEGORY_NAME_DUPLICATED);
     }
 
     // 마지막 순서 + 1 조회
-    Integer nextDisplayOrder = taskCategoryRepository
+    Integer nextDisplayOrder = categoryRepository
       .findTopByScopeTypeAndScopeUserIdOrderByDisplayOrderDesc(PERSONAL, userId)
-      .map(taskCategory -> taskCategory.getDisplayOrder() + 1)
+      .map(category -> category.getDisplayOrder() + 1)
       .orElse(1);
 
     // 엔티티 생성 및 저장
-    TaskCategory taskCategory = TaskCategory.createPersonal(
+    Category category = Category.createPersonal(
       categoryName,
       userId,
       request.getColor(),
       nextDisplayOrder
     );
 
-    return taskCategoryRepository.save(taskCategory).getId();
+    return categoryRepository.save(category).getId();
   }
 
   /** 개인 카테고리 수정 */
   @Transactional
-  public void updatePersonalTaskCategory(Long userId, Long categoryId, UpdateTaskCategoryRequest request) {
+  public void updatePersonalCategory(Long userId, Long categoryId, UpdateCategoryRequest request) {
 
     String categoryName = request.getName().trim().toLowerCase();
 
     // 카테고리 조회
-    TaskCategory taskCategory = taskCategoryRepository
+    Category category = categoryRepository
       .findByIdAndScopeTypeAndScopeUserId(categoryId, PERSONAL, userId)
       .orElseThrow(() -> new CustomException(CATEGORY_NOT_FOUND));
 
     // 카테고리 이름 중복 검사 (자기 자신 제외)
-    boolean existsName = taskCategoryQueryRepository.existsPersonalCategoryNameForUpdate(
+    boolean existsName = categoryQueryRepository.existsPersonalCategoryNameForUpdate(
       userId, categoryId, categoryName
     );
 
@@ -88,15 +88,15 @@ public class TaskCategoryService {
     }
 
     // 카테고리 수정
-    taskCategory.update(categoryName, request.getColor());
+    category.update(categoryName, request.getColor());
   }
 
   /** 개인 카테고리 삭제 */
   @Transactional
-  public void deletePersonalTaskCategory(Long userId, Long categoryId) {
+  public void deletePersonalCategory(Long userId, Long categoryId) {
 
     // 카테고리 조회
-    TaskCategory taskCategory = taskCategoryRepository
+    Category category = categoryRepository
       .findByIdAndScopeTypeAndScopeUserId(categoryId, PERSONAL, userId)
       .orElseThrow(() -> new CustomException(CATEGORY_NOT_FOUND));
 
@@ -105,12 +105,12 @@ public class TaskCategoryService {
     if (existsTask) throw new CustomException(CATEGORY_IN_USE);
 
     // 카테고리 삭제
-    taskCategoryRepository.delete(taskCategory);
+    categoryRepository.delete(category);
   }
 
   /** 개인 카테고리 순서 변경 */
   @Transactional
-  public void updatePersonalTaskCategoryOrder(Long userId, UpdateTaskCategoryOrderRequest request) {
+  public void updatePersonalCategoryOrder(Long userId, UpdateCategoryOrderRequest request) {
 
     List<Long> categoryIds = request.getCategoryIds();
 
@@ -121,7 +121,7 @@ public class TaskCategoryService {
     }
 
     // 카테고리 조회
-    List<TaskCategory> categories = taskCategoryRepository.findAllByIdInAndScopeTypeAndScopeUserId(
+    List<Category> categories = categoryRepository.findAllByIdInAndScopeTypeAndScopeUserId(
       categoryIds, PERSONAL, userId
     );
 
@@ -130,11 +130,11 @@ public class TaskCategoryService {
     }
 
     // 카테고리 정렬 (요청 list 순서대로 displayOrder 부여)
-    Map<Long, TaskCategory> categoryMap = categories.stream()
-      .collect(Collectors.toMap(TaskCategory::getId, Function.identity()));
+    Map<Long, Category> categoryMap = categories.stream()
+      .collect(Collectors.toMap(Category::getId, Function.identity()));
 
     for (int i = 0; i < categoryIds.size(); i++) {
-      TaskCategory category = categoryMap.get(categoryIds.get(i));
+      Category category = categoryMap.get(categoryIds.get(i));
       category.updateDisplayOrder(i + 1);
     }
   }

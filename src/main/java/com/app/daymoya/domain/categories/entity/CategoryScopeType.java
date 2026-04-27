@@ -1,9 +1,9 @@
-package com.app.daymoya.domain.taskCategories.entity;
+package com.app.daymoya.domain.categories.entity;
 
 import lombok.Getter;
 
 @Getter
-public enum TaskCategoryScopeType {
+public enum CategoryScopeType {
 
   SYSTEM_PERSONAL("개인 기본 카테고리"),
   PERSONAL("개인 커스텀 카테고리"),
@@ -12,7 +12,7 @@ public enum TaskCategoryScopeType {
 
   private final String label;
 
-  TaskCategoryScopeType(String label) {
+  CategoryScopeType(String label) {
     this.label = label;
   }
 

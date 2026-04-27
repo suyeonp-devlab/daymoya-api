@@ -40,7 +40,7 @@ public enum ErrorCode {
   USER_NOT_FOUND(NOT_FOUND, "USER-001", "존재하지 않는 회원입니다."),
 
   /** =====================================
-   *  TASK_CATEGORY 관련
+   *  CATEGORY 관련
    ========================================= */
   CATEGORY_NOT_FOUND(NOT_FOUND, "CATEGORY-001", "존재하지 않는 카테고리입니다."),
   CATEGORY_IN_USE(BAD_REQUEST, "CATEGORY-002", "현재 사용중인 카테고리입니다."),
