@@ -15,7 +15,12 @@ public enum ErrorCode {
   SERVER_ERROR(INTERNAL_SERVER_ERROR, "COMMON-500", "서버 내부 오류가 발생했습니다."),
   UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON-401", "인증이 필요합니다."),
   ACCESS_DENIED(FORBIDDEN, "COMMON-403", "접근 권한이 없습니다."),
-  MANY_REQUEST(TOO_MANY_REQUESTS, "COMMON-429", "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.");
+  MANY_REQUEST(TOO_MANY_REQUESTS, "COMMON-429", "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
+
+  /** =====================================
+   * AUTH 관련
+   ========================================= */
+  INVALID_SECURITY_CONTEXT(INTERNAL_SERVER_ERROR, "AUTH-001", "인증 컨텍스트가 올바르지 않습니다.");
 
   private final HttpStatus status;
   private final String code;

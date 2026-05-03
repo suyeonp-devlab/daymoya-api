@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public class ApiResponse<T> {
 
-  /** api 공통 응답 */
   private final boolean success;
   private final String code;
   private final String message;
