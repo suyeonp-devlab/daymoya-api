@@ -4,7 +4,9 @@ public final class RedisKeys {
 
   private RedisKeys() {}
 
-  /** ======= AUTH 관련 ======= */
+  /** =====================================
+   * 로그인 관련
+   ========================================= */
   public static final class Auth {
 
     private Auth() {}
@@ -20,7 +22,9 @@ public final class RedisKeys {
     }
   }
 
-  /** ======= 회원가입 관련 ======= */
+  /** =====================================
+   * 회원가입 관련
+   ========================================= */
   public static final class Signup {
 
     private Signup() {}
@@ -48,7 +52,9 @@ public final class RedisKeys {
     }
   }
 
-  /** ======= 비밀번호 초기화 관련 ======= */
+  /** =====================================
+   * 비밀번호 초기화 관련
+   ========================================= */
   public static final class PasswordReset {
 
     private PasswordReset() {}

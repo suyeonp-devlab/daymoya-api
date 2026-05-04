@@ -21,6 +21,24 @@ public enum ErrorCode {
    * AUTH 관련
    ========================================= */
   INVALID_SECURITY_CONTEXT(INTERNAL_SERVER_ERROR, "AUTH-001", "인증 컨텍스트가 올바르지 않습니다."),
+  EMAIL_ALREADY_EXISTS(BAD_REQUEST, "AUTH-002", "이미 가입된 이메일입니다."),
+  MANY_VERIFICATION_ATTEMPTS(BAD_REQUEST, "AUTH-003", "인증 시도 횟수를 초과했습니다. 인증번호를 다시 요청해주세요."),
+  AUTH_CODE_INVALID(BAD_REQUEST, "AUTH-004", "인증번호가 올바르지 않습니다."),
+  AUTH_CODE_EXPIRED(BAD_REQUEST, "AUTH-005", "인증번호가 만료되었거나 존재하지 않습니다. 인증번호를 다시 요청해주세요."),
+  PASSWORD_CONFIRM_NOT_MATCH(BAD_REQUEST, "AUTH-006", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+  EMAIL_NOT_VERIFIED(BAD_REQUEST, "AUTH-007", "이메일 인증이 완료되지 않았습니다."),
+  PASSWORD_SAME_AS_OLD(BAD_REQUEST, "AUTH-008", "기존 비밀번호와 동일한 비밀번호는 사용할 수 없습니다."),
+  EMAIL_OR_PASSWORD_INVALID(BAD_REQUEST, "AUTH-009", "이메일 또는 비밀번호가 올바르지 않습니다."),
+  PASSWORD_CHANGE_REQUIRED(BAD_REQUEST, "AUTH-010", "비밀번호 변경이 필요합니다."),
+  REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH-011", "유효하지 않은 리프레시 토큰입니다."),
+  PASSWORD_NOT_MATCH(BAD_REQUEST, "AUTH-012", "비밀번호가 올바르지 않습니다."),
+
+  /** =====================================
+   * USER 관련
+   ========================================= */
+  USER_NOT_FOUND(NOT_FOUND, "USER-001", "존재하지 않는 계정입니다."),
+  USER_LOCKED(BAD_REQUEST, "USER-002", "잠긴 계정입니다."),
+  USER_ALREADY_WITHDRAWN(BAD_REQUEST, "USER-003", "이미 탈퇴된 계정입니다."),
 
   /** =====================================
    * MAIL 관련

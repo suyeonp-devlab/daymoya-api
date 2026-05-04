@@ -10,7 +10,7 @@ CREATE TABLE users (
   failed_login_count INTEGER NOT NULL DEFAULT 0,
   password_changed_at TIMESTAMPTZ,
   last_login_at TIMESTAMPTZ,
-  created_by BIGINT NOT NULL,
+  created_by BIGINT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_by BIGINT,
   updated_at TIMESTAMPTZ,

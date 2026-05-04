@@ -6,7 +6,9 @@ public final class RedisTtl {
 
   private RedisTtl() {}
 
-  /** ======= 회원가입 관련 ======= */
+  /** =====================================
+   * 회원가입 관련
+   ========================================= */
   public static final class Signup {
 
     private Signup() {}
@@ -18,7 +20,9 @@ public final class RedisTtl {
     public static final Duration IP_LIMIT = Duration.ofSeconds(10);
   }
 
-  /** ======= 비밀번호 초기화 관련 ======= */
+  /** =====================================
+   * 비밀번호 초기화 관련
+   ========================================= */
   public static final class PasswordReset {
 
     private PasswordReset() {}

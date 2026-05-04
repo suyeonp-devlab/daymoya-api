@@ -17,8 +17,6 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder(access = AccessLevel.PRIVATE)
 public class User extends BaseAuditEntity {
 
-  private static final int PASSWORD_FAIL_CNT = 5;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -60,5 +58,54 @@ public class User extends BaseAuditEntity {
 
   // 탈퇴일시
   private LocalDateTime deletedAt;
+
+  /** 회원 생성 */
+  public static User create(
+    String email,
+    String encodedPassword,
+    String nickname,
+    String profileImagePath,
+    LocalDateTime now
+  ) {
+
+    return User.builder()
+      .email(email)
+      .password(encodedPassword)
+      .nickname(nickname)
+      .profileImagePath(profileImagePath)
+      .role(UserRole.USER)
+      .status(UserStatus.ACTIVE)
+      .failedLoginCount(0)
+      .passwordChangedAt(now)
+      .build();
+  }
+
+  /** 비밀번호 변경 */
+  public void changePassword(String encodedPassword, LocalDateTime now) {
+    this.password = encodedPassword;
+    this.failedLoginCount = 0;
+    this.passwordChangedAt = now;
+  }
+
+  /** 로그인 실패 처리 */
+  public void increaseFailedLoginCount() {
+    this.failedLoginCount++;
+  }
+
+  /** 로그인 성공 처리 */
+  public void login(LocalDateTime now) {
+    this.failedLoginCount = 0;
+    this.lastLoginAt = now;
+  }
+
+  /** 회원 탈퇴 */
+  public void withdraw(LocalDateTime now) {
+    this.email = null;
+    this.password = null;
+    this.nickname = "탈퇴회원";
+    this.profileImagePath = "profile/withdrawn-profile.png";
+    this.status = UserStatus.WITHDRAWN;
+    this.deletedAt = now;
+  }
 
 }
