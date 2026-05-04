@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /** 커스텀 bizException 예외 응답 처리 */
   @ExceptionHandler(BizException.class)
   public ResponseEntity<ApiResponse<Void>> handleBizException(BizException e) {
 
@@ -20,7 +19,6 @@ public class GlobalExceptionHandler {
       .body(ApiResponse.fail(errorCode.getCode(), e.getMessage())); // 커스텀 메세지 고려
   }
 
-  /** @Valid 예외 응답 처리 */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
 
