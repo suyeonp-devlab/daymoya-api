@@ -2,7 +2,6 @@ package com.app.daymoya.domain.codes.controller;
 
 import com.app.daymoya.domain.codes.dto.request.*;
 import com.app.daymoya.domain.codes.dto.response.CodeGroupResponse;
-import com.app.daymoya.domain.codes.dto.response.CodeResponse;
 import com.app.daymoya.domain.codes.service.CodeService;
 import com.app.daymoya.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -26,14 +25,14 @@ public class CodeController {
   }
 
   /** 그룹코드 생성 */
-  @PostMapping("/groups")
+  @PostMapping("/admin/groups")
   public ApiResponse<Void> createCodeGroup(@Valid @RequestBody CodeGroupCreateRequest request) {
     codeService.createCodeGroup(request);
     return ApiResponse.success();
   }
 
   /** 그룹코드 수정 */
-  @PatchMapping("/groups/{groupId}")
+  @PatchMapping("/admin/groups/{groupId}")
   public ApiResponse<Void> updateCodeGroup(@PathVariable Long groupId, @Valid @RequestBody CodeGroupUpdateRequest request) {
     codeService.updateCodeGroup(groupId, request);
     return ApiResponse.success();
@@ -47,14 +46,14 @@ public class CodeController {
   }
 
   /** 코드 생성 */
-  @PostMapping("/groups/{groupId}/codes")
+  @PostMapping("/admin/groups/{groupId}/codes")
   public ApiResponse<Void> createCode(@PathVariable Long groupId, @Valid @RequestBody CodeCreateRequest request) {
     codeService.createCode(groupId, request);
     return ApiResponse.success();
   }
 
   /** 코드 수정 */
-  @PutMapping("/groups/{groupId}/codes/{codeId}")
+  @PatchMapping("/admin/groups/{groupId}/codes/{codeId}")
   public ApiResponse<Void> updateCode(
     @PathVariable Long groupId,
     @PathVariable Long codeId,

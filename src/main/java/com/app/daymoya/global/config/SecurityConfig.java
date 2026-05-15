@@ -42,7 +42,7 @@ public class SecurityConfig {
       .authorizeHttpRequests(auth -> auth
         .requestMatchers("/api/auth/public/**").permitAll()
         .requestMatchers("/health").permitAll()
-        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+        .requestMatchers("/api/codes/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated()
       )
       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
