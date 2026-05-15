@@ -41,6 +41,14 @@ public enum ErrorCode {
   USER_ALREADY_WITHDRAWN(BAD_REQUEST, "USER-003", "이미 탈퇴된 계정입니다."),
 
   /** =====================================
+   * CODE 관련
+   ========================================= */
+  CODE_GROUP_NOT_FOUND(NOT_FOUND, "CODE-001", "존재하지 않는 그룹코드입니다."),
+  CODE_NOT_FOUND(NOT_FOUND, "CODE-002", "존재하지 않는 코드입니다."),
+  CODE_GROUP_ALREADY_EXISTS(BAD_REQUEST, "CODE-003", "이미 사용 중인 그룹코드입니다."),
+  CODE_ALREADY_EXISTS(BAD_REQUEST, "CODE-004", "이미 사용 중인 코드입니다."),
+
+  /** =====================================
    * MAIL 관련
    ========================================= */
   MAIL_SEND_FAIL(INTERNAL_SERVER_ERROR, "MAIL-001", "이메일 발송에 실패했습니다."),

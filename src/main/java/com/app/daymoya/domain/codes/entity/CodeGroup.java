@@ -39,4 +39,35 @@ public class CodeGroup extends BaseAuditEntity {
   @Column(nullable = false)
   private Boolean enabled;
 
+  /** 그룹코드 생성 */
+  public static CodeGroup create(
+    String groupCode,
+    String groupName,
+    String description,
+    CodeGroupDomain domain,
+    Boolean enabled
+  ) {
+
+    return CodeGroup.builder()
+      .groupCode(groupCode)
+      .groupName(groupName)
+      .description(description)
+      .domain(domain)
+      .enabled(enabled)
+      .build();
+  }
+
+  /** 그룹코드 변경 */
+  public void update(
+    String groupName,
+    String description,
+    CodeGroupDomain domain,
+    Boolean enabled
+  ) {
+    this.groupName = groupName;
+    this.description = description;
+    this.domain = domain;
+    this.enabled = enabled;
+  }
+
 }

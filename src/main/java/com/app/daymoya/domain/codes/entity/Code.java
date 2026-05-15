@@ -51,4 +51,49 @@ public class Code extends BaseAuditEntity {
   @Column(nullable = false)
   private Integer sortNo;
 
+  /** 코드 생성 */
+  public static Code create(
+    Long groupId,
+    String code,
+    String codeName,
+    String description,
+    String etc1,
+    String etc2,
+    String etc3,
+    Boolean enabled,
+    Integer sortNo
+  ) {
+
+    return Code.builder()
+      .groupId(groupId)
+      .code(code)
+      .codeName(codeName)
+      .description(description)
+      .etc1(etc1)
+      .etc2(etc2)
+      .etc3(etc3)
+      .enabled(enabled)
+      .sortNo(sortNo)
+      .build();
+  }
+
+  /** 코드 변경 */
+  public void update(
+    String codeName,
+    String description,
+    String etc1,
+    String etc2,
+    String etc3,
+    Boolean enabled,
+    Integer sortNo
+  ) {
+    this.codeName = codeName;
+    this.description = description;
+    this.etc1 = etc1;
+    this.etc2 = etc2;
+    this.etc3 = etc3;
+    this.enabled = enabled;
+    this.sortNo = sortNo;
+  }
+
 }
