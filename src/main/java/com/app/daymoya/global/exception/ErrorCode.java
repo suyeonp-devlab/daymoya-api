@@ -49,6 +49,13 @@ public enum ErrorCode {
   CODE_ALREADY_EXISTS(BAD_REQUEST, "CODE-004", "이미 사용 중인 코드입니다."),
 
   /** =====================================
+   * CATEGORY 관련
+   ========================================= */
+  CATEGORY_NOT_FOUND(NOT_FOUND, "CATEGORY-001", "존재하지 않는 카테고리입니다."),
+  CATEGORY_ACCESS_DENIED(FORBIDDEN, "CATEGORY-002", "카테고리에 대한 접근 권한이 없습니다."),
+  CATEGORY_SYSTEM_IMMUTABLE(BAD_REQUEST, "CATEGORY-003", "시스템 카테고리는 수정/삭제할 수 없습니다."),
+
+  /** =====================================
    * MAIL 관련
    ========================================= */
   MAIL_SEND_FAIL(INTERNAL_SERVER_ERROR, "MAIL-001", "이메일 발송에 실패했습니다."),
