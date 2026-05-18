@@ -59,58 +59,10 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     return max != null ? max + 1 : 1;
   }
 
-  /** 그룹 카테고리 목록 조회 */
-  @Override
-  public List<Category> findGroupCategories(Long groupId) {
-
-    return queryFactory
-      .selectFrom(category)
-      .where(isGroupScope(groupId))
-      .orderBy(category.scope.asc(), category.sortNo.asc())
-      .fetch();
-  }
-
-  /** 그룹 카테고리명 중복 여부 */
-  @Override
-  public boolean existsGroupCategoryByName(Long groupId, String name, Long excludeId) {
-
-    return queryFactory
-      .selectOne()
-      .from(category)
-      .where(
-        isGroupScope(groupId),
-        category.name.eq(name),
-        excludeId(excludeId)
-      )
-      .fetchFirst() != null;
-  }
-
-  /** next 그룹 카테고리 sort 번호 */
-  @Override
-  public int nextGroupSortNo(Long groupId) {
-
-    Integer max = queryFactory
-      .select(category.sortNo.max())
-      .from(category)
-      .where(
-        category.scope.eq(CategoryScope.GROUP),
-        category.scopeGroupId.eq(groupId)
-      )
-      .fetchOne();
-
-    return max != null ? max + 1 : 1;
-  }
-
   /** 개인 카테고리 조회 조건 */
   private BooleanExpression isPersonalScope(Long userId) {
     return category.scope.eq(CategoryScope.SYS_PERSONAL)
       .or(category.scope.eq(CategoryScope.PERSONAL).and(category.scopeUserId.eq(userId)));
-  }
-
-  /** 그룹 카테고리 조회 조건 */
-  private BooleanExpression isGroupScope(Long groupId) {
-    return category.scope.eq(CategoryScope.SYS_GROUP)
-      .or(category.scope.eq(CategoryScope.GROUP).and(category.scopeGroupId.eq(groupId)));
   }
 
   /** 특정 카테고리 제외 여부 */
