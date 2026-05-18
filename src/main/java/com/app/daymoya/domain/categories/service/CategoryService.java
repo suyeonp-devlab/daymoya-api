@@ -5,6 +5,7 @@ import com.app.daymoya.domain.categories.dto.request.CategoryUpdateRequest;
 import com.app.daymoya.domain.categories.dto.response.CategoryResponse;
 import com.app.daymoya.domain.categories.entity.Category;
 import com.app.daymoya.domain.categories.repository.CategoryRepository;
+import com.app.daymoya.domain.tasks.repository.TaskRepository;
 import com.app.daymoya.global.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import static com.app.daymoya.global.exception.ErrorCode.*;
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
+  private final TaskRepository taskRepository;
 
   /** 개인 카테고리 목록 조회 */
   public List<CategoryResponse> getPersonalCategories(Long userId) {
@@ -66,9 +68,13 @@ public class CategoryService {
   @Transactional
   public void deletePersonalCategory(Long userId, Long categoryId) {
 
-    // TODO : 해당 카테고리로 등록된 일정이 존재하는지 체크
-
     Category category = findPersonalCategory(userId, categoryId);
+
+    // 카테고리에 해당하는 일정 존재여부
+    boolean hasTask = taskRepository.existsByCategoryIdAndDeletedAtIsNull(categoryId);
+    if (hasTask) throw new BizException(CATEGORY_HAS_TASKS);
+
+    // 카테고리 삭제
     categoryRepository.delete(category);
   }
 
