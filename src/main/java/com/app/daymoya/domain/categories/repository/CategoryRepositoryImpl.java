@@ -28,6 +28,37 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
       .fetch();
   }
 
+  /** 개인 카테고리명 중복 여부 */
+  @Override
+  public boolean existsPersonalCategoryByName(Long userId, String name, Long excludeId) {
+
+    return queryFactory
+      .selectOne()
+      .from(category)
+      .where(
+        isPersonalScope(userId),
+        category.name.eq(name),
+        excludeId(excludeId)
+      )
+      .fetchFirst() != null;
+  }
+
+  /** next 개인 카테고리 sort 번호 */
+  @Override
+  public int nextPersonalSortNo(Long userId) {
+
+    Integer max = queryFactory
+      .select(category.sortNo.max())
+      .from(category)
+      .where(
+        category.scope.eq(CategoryScope.PERSONAL),
+        category.scopeUserId.eq(userId)
+      )
+      .fetchOne();
+
+    return max != null ? max + 1 : 1;
+  }
+
   /** 그룹 카테고리 목록 조회 */
   @Override
   public List<Category> findGroupCategories(Long groupId) {
@@ -37,6 +68,37 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
       .where(isGroupScope(groupId))
       .orderBy(category.scope.asc(), category.sortNo.asc())
       .fetch();
+  }
+
+  /** 그룹 카테고리명 중복 여부 */
+  @Override
+  public boolean existsGroupCategoryByName(Long groupId, String name, Long excludeId) {
+
+    return queryFactory
+      .selectOne()
+      .from(category)
+      .where(
+        isGroupScope(groupId),
+        category.name.eq(name),
+        excludeId(excludeId)
+      )
+      .fetchFirst() != null;
+  }
+
+  /** next 그룹 카테고리 sort 번호 */
+  @Override
+  public int nextGroupSortNo(Long groupId) {
+
+    Integer max = queryFactory
+      .select(category.sortNo.max())
+      .from(category)
+      .where(
+        category.scope.eq(CategoryScope.GROUP),
+        category.scopeGroupId.eq(groupId)
+      )
+      .fetchOne();
+
+    return max != null ? max + 1 : 1;
   }
 
   /** 개인 카테고리 조회 조건 */
@@ -49,6 +111,11 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
   private BooleanExpression isGroupScope(Long groupId) {
     return category.scope.eq(CategoryScope.SYS_GROUP)
       .or(category.scope.eq(CategoryScope.GROUP).and(category.scopeGroupId.eq(groupId)));
+  }
+
+  /** 특정 카테고리 제외 여부 */
+  private BooleanExpression excludeId(Long excludeId) {
+    return excludeId != null ? category.id.ne(excludeId) : null;
   }
 
 }

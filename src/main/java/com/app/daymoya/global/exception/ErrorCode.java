@@ -54,6 +54,7 @@ public enum ErrorCode {
   CATEGORY_NOT_FOUND(NOT_FOUND, "CATEGORY-001", "존재하지 않는 카테고리입니다."),
   CATEGORY_ACCESS_DENIED(FORBIDDEN, "CATEGORY-002", "카테고리에 대한 접근 권한이 없습니다."),
   CATEGORY_SYSTEM_IMMUTABLE(BAD_REQUEST, "CATEGORY-003", "시스템 카테고리는 수정/삭제할 수 없습니다."),
+  CATEGORY_DUPLICATE_NAME(BAD_REQUEST, "CATEGORY-004", "이미 사용 중인 카테고리명입니다."),
 
   /** =====================================
    * MAIL 관련

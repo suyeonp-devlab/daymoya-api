@@ -1,12 +1,9 @@
 package com.app.daymoya.domain.categories.service;
 
-import com.app.daymoya.domain.categories.dto.request.AdminCategoryCreateRequest;
-import com.app.daymoya.domain.categories.dto.request.AdminCategoryUpdateRequest;
 import com.app.daymoya.domain.categories.dto.request.CategoryCreateRequest;
 import com.app.daymoya.domain.categories.dto.request.CategoryUpdateRequest;
 import com.app.daymoya.domain.categories.dto.response.CategoryResponse;
 import com.app.daymoya.domain.categories.entity.Category;
-import com.app.daymoya.domain.categories.entity.CategoryScope;
 import com.app.daymoya.domain.categories.repository.CategoryRepository;
 import com.app.daymoya.global.exception.BizException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +23,6 @@ public class CategoryService {
 
   /** 개인 카테고리 목록 조회 */
   public List<CategoryResponse> getPersonalCategories(Long userId) {
-
     return categoryRepository.findPersonalCategories(userId).stream()
       .map(CategoryResponse::from)
       .toList();
@@ -38,19 +34,13 @@ public class CategoryService {
 
     String name = request.getName().trim().toLowerCase();
 
-    // TODO : 카테고리명 중복체크
-    // TODO : sort는 개인 카테고리 마지막 sort번호 + 1
-    int sort = 0;
+    // 카테고리명 중복 여부
+    boolean duplicate = categoryRepository.existsPersonalCategoryByName(userId, name, null);
+    if (duplicate) throw new BizException(CATEGORY_DUPLICATE_NAME);
 
-    // 개인 카테고리 등록
-    Category category = Category.createPersonal(
-      name,
-      userId,
-      request.getColor(),
-      sort
-    );
-
-    categoryRepository.save(category);
+    // 카테고리 생성
+    int sort = categoryRepository.nextPersonalSortNo(userId);
+    categoryRepository.save(Category.createPersonal(name, userId, request.getColor(), sort));
   }
 
   /** 개인 카테고리 수정 */
@@ -58,16 +48,11 @@ public class CategoryService {
   public void updatePersonalCategory(Long userId, Long categoryId, CategoryUpdateRequest request) {
 
     String name = request.getName().trim().toLowerCase();
+    Category category = findPersonalCategory(userId, categoryId);
 
-    // 카테고리 조회
-    Category category = categoryRepository.findById(categoryId)
-      .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
-
-    if (!category.isPersonal(userId)) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
-    // TODO : 카테고리명 중복체크
+    // 카테고리명 중복 여부
+    boolean duplicate = categoryRepository.existsPersonalCategoryByName(userId, name, categoryId);
+    if (duplicate) throw new BizException(CATEGORY_DUPLICATE_NAME);
 
     // 카테고리 수정
     category.update(name, request.getColor());
@@ -77,21 +62,16 @@ public class CategoryService {
   @Transactional
   public void deletePersonalCategory(Long userId, Long categoryId) {
 
-    // 카테고리 조회
-    Category category = categoryRepository.findById(categoryId)
-      .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
+    // TODO : 해당 카테고리로 등록된 일정이 존재하는지 체크
 
-    if (!category.isPersonal(userId)) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
+    Category category = findPersonalCategory(userId, categoryId);
     categoryRepository.delete(category);
   }
 
   /** 그룹 카테고리 목록 조회 */
   public List<CategoryResponse> getGroupCategories(Long userId, Long groupId) {
 
-    // TODO : userId가 해당 그룹에 속하는지 확인
+    // TODO : userId가 해당 그룹의 owner인지 확인
 
     return categoryRepository.findGroupCategories(groupId).stream()
       .map(CategoryResponse::from)
@@ -102,40 +82,31 @@ public class CategoryService {
   @Transactional
   public void createGroupCategory(Long userId, Long groupId, CategoryCreateRequest request) {
 
+    // TODO : userId가 해당 그룹의 owner인지 확인
+
     String name = request.getName().trim().toLowerCase();
 
-    // TODO : userId가 해당 그룹에 속하는지 확인
-    // TODO : 카테고리명 중복체크
-    // TODO : sort는 개인 카테고리 마지막 sort번호 + 1
-    int sort = 0;
+    // 카테고리명 중복 여부
+    boolean duplicate = categoryRepository.existsGroupCategoryByName(groupId, name, null);
+    if (duplicate) throw new BizException(CATEGORY_DUPLICATE_NAME);
 
-    Category category = Category.createGroup(
-      name,
-      groupId,
-      request.getColor(),
-      sort
-    );
-
-    categoryRepository.save(category);
+    // 카테고리 생성
+    int sort = categoryRepository.nextGroupSortNo(groupId);
+    categoryRepository.save(Category.createGroup(name, groupId, request.getColor(), sort));
   }
 
   /** 그룹 카테고리 수정 */
   @Transactional
   public void updateGroupCategory(Long userId, Long groupId, Long categoryId, CategoryUpdateRequest request) {
 
-    // TODO : userId가 해당 그룹에 속하는지 확인
+    // TODO : userId가 해당 그룹의 owner인지 확인
 
     String name = request.getName().trim().toLowerCase();
+    Category category = findGroupCategory(groupId, categoryId);
 
-    // 카테고리 조회
-    Category category = categoryRepository.findById(categoryId)
-      .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
-
-    if (!category.isGroup(groupId)) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
-    // TODO : 카테고리명 중복체크
+    // 카테고리명 중복 여부
+    boolean duplicate = categoryRepository.existsGroupCategoryByName(groupId, name, categoryId);
+    if (duplicate) throw new BizException(CATEGORY_DUPLICATE_NAME);
 
     // 카테고리 수정
     category.update(name, request.getColor());
@@ -145,71 +116,31 @@ public class CategoryService {
   @Transactional
   public void deleteGroupCategory(Long userId, Long groupId, Long categoryId) {
 
-    // TODO : userId가 해당 그룹에 속하는지 확인
+    // TODO : userId가 해당 그룹의 owner인지 확인
+    // TODO : 해당 카테고리로 등록된 일정이 존재하는지 체크
 
-    // 카테고리 조회
-    Category category = categoryRepository.findById(categoryId)
-      .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
-
-    if (!category.isGroup(groupId)) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
+    Category category = findGroupCategory(groupId, categoryId);
     categoryRepository.delete(category);
   }
 
-  /** 시스템 카테고리 생성 */
-  @Transactional
-  public void createSystemCategory(AdminCategoryCreateRequest request) {
+  /** 개인 카테고리 단건 조회 */
+  private Category findPersonalCategory(Long userId, Long categoryId) {
 
-    String name = request.getName().trim().toLowerCase();
-    // TODO : 카테고리명 중복체크
-    // TODO : sort는 개인 카테고리 마지막 sort번호 + 1
-    int sort = 0;
-
-    Category category = Category.createSystem(
-      name,
-      request.getCategoryScope(),
-      request.getColor(),
-      sort
-    );
-
-    categoryRepository.save(category);
-  }
-
-  /** 시스템 카테고리 수정 */
-  @Transactional
-  public void updateSystemCategory(Long categoryId, AdminCategoryUpdateRequest request) {
-
-    String name = request.getName().trim().toLowerCase();
-
-    // 카테고리 조회
     Category category = categoryRepository.findById(categoryId)
       .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-    if (!category.isSystem()) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
-    // TODO : 카테고리명 중복체크
-
-    // 카테고리 수정
-    category.update(name, request.getColor());
+    if (!category.isPersonal(userId)) throw new BizException(CATEGORY_ACCESS_DENIED);
+    return category;
   }
 
-  /** 시스템 카테고리 삭제 */
-  @Transactional
-  public void deleteSystemCategory(Long categoryId) {
+  /** 그룹 카테고리 단건 조회 */
+  private Category findGroupCategory(Long groupId, Long categoryId) {
 
-    // 카테고리 조회
     Category category = categoryRepository.findById(categoryId)
       .orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-    if (!category.isSystem()) {
-      throw new BizException(CATEGORY_ACCESS_DENIED);
-    }
-
-    categoryRepository.delete(category);
+    if (!category.isGroup(groupId)) throw new BizException(CATEGORY_ACCESS_DENIED);
+    return category;
   }
 
 }
