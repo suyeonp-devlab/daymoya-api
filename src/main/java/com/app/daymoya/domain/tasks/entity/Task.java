@@ -62,4 +62,65 @@ public class Task extends BaseAuditEntity {
   // 삭제일시
   private LocalDateTime deletedAt;
 
+  /** 개인 일정 생성 */
+  public static Task createPersonal(
+    Long userId,
+    String title,
+    String description,
+    TaskPriority priority,
+    LocalDateTime startAt,
+    LocalDateTime endAt,
+    Long categoryId
+  ) {
+
+    return Task.builder()
+      .assigneeId(userId)
+      .title(title)
+      .description(description)
+      .status(TaskStatus.TODO)
+      .priority(priority)
+      .startAt(startAt)
+      .endAt(endAt)
+      .categoryId(categoryId)
+      .build();
+  }
+
+  /** 일정 수정 */
+  public void update(
+    String title,
+    String description,
+    TaskPriority priority,
+    LocalDateTime startAt,
+    LocalDateTime endAt,
+    Long categoryId
+  ) {
+    this.title = title;
+    this.description = description;
+    this.priority = priority;
+    this.startAt = startAt;
+    this.endAt = endAt;
+    this.categoryId = categoryId;
+  }
+
+  /** 상태 변경 */
+  public void changeStatus(TaskStatus status) {
+    this.status = status;
+    this.completedAt = (status == TaskStatus.DONE) ? LocalDateTime.now() : null;
+  }
+
+  /** 일정 삭제 */
+  public void softDelete() {
+    this.deletedAt = LocalDateTime.now();
+  }
+
+  /** 삭제 여부 */
+  public boolean isDeleted() {
+    return this.deletedAt != null;
+  }
+
+  /** 개인 일정 여부 */
+  public boolean isPersonal(Long userId) {
+    return this.groupId == null && userId.equals(this.assigneeId);
+  }
+
 }

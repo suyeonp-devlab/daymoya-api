@@ -57,6 +57,12 @@ public enum ErrorCode {
   CATEGORY_DUPLICATE_NAME(BAD_REQUEST, "CATEGORY-004", "이미 사용 중인 카테고리명입니다."),
 
   /** =====================================
+   * TASK 관련
+   ========================================= */
+  TASK_NOT_FOUND(NOT_FOUND, "TASK-001", "존재하지 않는 일정입니다."),
+  TASK_ACCESS_DENIED(FORBIDDEN, "TASK-002", "일정에 대한 접근 권한이 없습니다."),
+
+  /** =====================================
    * MAIL 관련
    ========================================= */
   MAIL_SEND_FAIL(INTERNAL_SERVER_ERROR, "MAIL-001", "이메일 발송에 실패했습니다."),

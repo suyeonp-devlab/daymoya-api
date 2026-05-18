@@ -59,13 +59,13 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     return max != null ? max + 1 : 1;
   }
 
-  /** 개인 카테고리 조회 조건 */
+  /** 개인 카테고리 조건절 */
   private BooleanExpression isPersonalScope(Long userId) {
     return category.scope.eq(CategoryScope.SYS_PERSONAL)
       .or(category.scope.eq(CategoryScope.PERSONAL).and(category.scopeUserId.eq(userId)));
   }
 
-  /** 특정 카테고리 제외 여부 */
+  /** 예외 카테고리 조건절 */
   private BooleanExpression excludeId(Long excludeId) {
     return excludeId != null ? category.id.ne(excludeId) : null;
   }

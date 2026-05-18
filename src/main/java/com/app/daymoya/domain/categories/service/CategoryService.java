@@ -40,7 +40,11 @@ public class CategoryService {
 
     // 카테고리 생성
     int sort = categoryRepository.nextPersonalSortNo(userId);
-    categoryRepository.save(Category.createPersonal(name, userId, request.getColor(), sort));
+    Category category = Category.createPersonal(
+      name, userId, request.getColor(), sort
+    );
+
+    categoryRepository.save(category);
   }
 
   /** 개인 카테고리 수정 */

@@ -59,39 +59,6 @@ public class Category extends BaseAuditEntity {
       .build();
   }
 
-  /** 그룹 카테고리 생성 */
-  public static Category createGroup(
-    String name,
-    Long groupId,
-    String color,
-    Integer sortNo
-  ) {
-
-    return Category.builder()
-      .name(name)
-      .scope(CategoryScope.GROUP)
-      .scopeGroupId(groupId)
-      .color(color)
-      .sortNo(sortNo)
-      .build();
-  }
-
-  /** 시스템 카테고리 생성 */
-  public static Category createSystem(
-    String name,
-    CategoryScope scope,
-    String color,
-    Integer sortNo
-  ) {
-
-    return Category.builder()
-      .name(name)
-      .scope(scope)
-      .color(color)
-      .sortNo(sortNo)
-      .build();
-  }
-
   /** 카테고리 수정 */
   public void update(String name, String color) {
     this.name = name;
@@ -101,16 +68,6 @@ public class Category extends BaseAuditEntity {
   /** 개인 카테고리 여부 */
   public boolean isPersonal(Long userId) {
     return this.scope == CategoryScope.PERSONAL && userId.equals(this.scopeUserId);
-  }
-
-  /** 그룹 카테고리 여부 */
-  public boolean isGroup(Long groupId) {
-    return this.scope == CategoryScope.GROUP && groupId.equals(this.scopeGroupId);
-  }
-
-  /** 시스템 카테고리 여부 */
-  public boolean isSystem() {
-    return this.scope == CategoryScope.SYS_PERSONAL || this.scope == CategoryScope.SYS_GROUP;
   }
 
 }
