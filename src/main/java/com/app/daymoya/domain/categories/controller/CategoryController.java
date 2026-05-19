@@ -40,14 +40,14 @@ public class CategoryController {
     @PathVariable Long categoryId,
     @Valid @RequestBody CategoryUpdateRequest request
   ) {
-    categoryService.updatePersonalCategory(categoryId, userId, request);
+    categoryService.updatePersonalCategory(userId, categoryId, request);
     return ApiResponse.success();
   }
 
   /** 개인 카테고리 삭제 */
   @DeleteMapping("/{categoryId}")
   public ApiResponse<Void> deletePersonalCategory(@CurrentUserId Long userId, @PathVariable Long categoryId) {
-    categoryService.deletePersonalCategory(categoryId, userId);
+    categoryService.deletePersonalCategory(userId, categoryId);
     return ApiResponse.success();
   }
 
