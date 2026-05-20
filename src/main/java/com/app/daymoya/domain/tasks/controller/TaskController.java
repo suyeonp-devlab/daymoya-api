@@ -4,6 +4,7 @@ import com.app.daymoya.domain.tasks.dto.request.TaskCreateRequest;
 import com.app.daymoya.domain.tasks.dto.request.TaskStatusChangeRequest;
 import com.app.daymoya.domain.tasks.dto.request.TaskUpdateRequest;
 import com.app.daymoya.domain.tasks.dto.response.TaskResponse;
+import com.app.daymoya.domain.tasks.dto.response.TaskSummaryResponse;
 import com.app.daymoya.domain.tasks.entity.TaskStatus;
 import com.app.daymoya.domain.tasks.service.TaskService;
 import com.app.daymoya.global.response.ApiResponse;
@@ -30,6 +31,20 @@ public class TaskController {
   ) {
     List<TaskResponse> tasks = taskService.getPersonalTasks(userId, yearMonth, status);
     return ApiResponse.success(tasks);
+  }
+
+  /** 개인 일정 단건 조회 */
+  @GetMapping("/{taskId}")
+  public ApiResponse<TaskResponse> getPersonalTask(@CurrentUserId Long userId, @PathVariable Long taskId) {
+    TaskResponse task = taskService.getPersonalTask(userId, taskId);
+    return ApiResponse.success(task);
+  }
+
+  /** 개인 일정 월별 통계 */
+  @GetMapping("/summary")
+  public ApiResponse<TaskSummaryResponse> getPersonalTaskSummary(@CurrentUserId Long userId, @RequestParam String yearMonth) {
+    TaskSummaryResponse summary = taskService.getPersonalTaskSummary(userId, yearMonth);
+    return ApiResponse.success(summary);
   }
 
   /** 개인 일정 생성 */

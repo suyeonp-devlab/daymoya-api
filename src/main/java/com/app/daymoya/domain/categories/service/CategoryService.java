@@ -1,6 +1,7 @@
 package com.app.daymoya.domain.categories.service;
 
 import com.app.daymoya.domain.categories.dto.request.CategoryCreateRequest;
+import com.app.daymoya.domain.categories.dto.request.CategoryReorderRequest;
 import com.app.daymoya.domain.categories.dto.request.CategoryUpdateRequest;
 import com.app.daymoya.domain.categories.dto.response.CategoryResponse;
 import com.app.daymoya.domain.categories.entity.Category;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.app.daymoya.global.exception.ErrorCode.*;
 
@@ -76,6 +80,28 @@ public class CategoryService {
 
     // 카테고리 삭제
     categoryRepository.delete(category);
+  }
+
+  /** 개인 카테고리 재정렬 */
+  @Transactional
+  public void reorderPersonalCategories(Long userId, CategoryReorderRequest request) {
+
+    List<Long> categoryIds = request.getCategoryIds();
+
+    // 카테고리 조회
+    Map<Long, Category> categoryMap = categoryRepository.findAllById(categoryIds).stream()
+      .collect(Collectors.toMap(Category::getId, Function.identity()));
+
+    for (int i = 0; i < categoryIds.size(); i++) {
+      Long categoryId = categoryIds.get(i);
+      Category category = categoryMap.get(categoryId);
+
+      // 미존재 또는 개인 카테고리가 아닌 경우
+      if (category == null) throw new BizException(CATEGORY_NOT_FOUND);
+      if (!category.isPersonal(userId)) throw new BizException(CATEGORY_ACCESS_DENIED);
+
+      category.updateSortNo(i + 1);
+    }
   }
 
   /** 개인 카테고리 단건 조회 */

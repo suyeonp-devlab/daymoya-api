@@ -1,6 +1,7 @@
 package com.app.daymoya.domain.categories.controller;
 
 import com.app.daymoya.domain.categories.dto.request.CategoryCreateRequest;
+import com.app.daymoya.domain.categories.dto.request.CategoryReorderRequest;
 import com.app.daymoya.domain.categories.dto.request.CategoryUpdateRequest;
 import com.app.daymoya.domain.categories.dto.response.CategoryResponse;
 import com.app.daymoya.domain.categories.service.CategoryService;
@@ -48,6 +49,13 @@ public class CategoryController {
   @DeleteMapping("/{categoryId}")
   public ApiResponse<Void> deletePersonalCategory(@CurrentUserId Long userId, @PathVariable Long categoryId) {
     categoryService.deletePersonalCategory(userId, categoryId);
+    return ApiResponse.success();
+  }
+
+  /** 개인 카테고리 재정렬 */
+  @PatchMapping("/reorder")
+  public ApiResponse<Void> reorderPersonalCategories(@CurrentUserId Long userId, @Valid @RequestBody CategoryReorderRequest request) {
+    categoryService.reorderPersonalCategories(userId, request);
     return ApiResponse.success();
   }
 

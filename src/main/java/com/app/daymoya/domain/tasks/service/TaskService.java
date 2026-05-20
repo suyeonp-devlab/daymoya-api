@@ -7,6 +7,7 @@ import com.app.daymoya.domain.tasks.dto.request.TaskCreateRequest;
 import com.app.daymoya.domain.tasks.dto.request.TaskStatusChangeRequest;
 import com.app.daymoya.domain.tasks.dto.request.TaskUpdateRequest;
 import com.app.daymoya.domain.tasks.dto.response.TaskResponse;
+import com.app.daymoya.domain.tasks.dto.response.TaskSummaryResponse;
 import com.app.daymoya.domain.tasks.entity.Task;
 import com.app.daymoya.domain.tasks.entity.TaskStatus;
 import com.app.daymoya.domain.tasks.repository.TaskRepository;
@@ -47,6 +48,42 @@ public class TaskService {
     return tasks.stream()
       .map(t -> TaskResponse.from(t, categoryNames.get(t.getCategoryId())))
       .toList();
+  }
+
+  /** 개인 일정 단건 조회 */
+  public TaskResponse getPersonalTask(Long userId, Long taskId) {
+
+    // 개인 일정 조회
+    Task task = findPersonalTask(userId, taskId);
+
+    // 카테고리명 조회
+    String categoryName = null;
+
+    if (task.getCategoryId() != null) {
+      categoryName = categoryRepository.findById(task.getCategoryId())
+        .map(Category::getName)
+        .orElse(null);
+    }
+
+    return TaskResponse.from(task, categoryName);
+  }
+
+  /** 개인 일정 월별 통계 */
+  public TaskSummaryResponse getPersonalTaskSummary(Long userId, String yearMonth) {
+
+    LocalDateTime[] range = parseYearMonth(yearMonth);
+    List<Task> tasks = taskRepository.findPersonalTasks(userId, range[0], range[1], null);
+
+    Map<TaskStatus, Long> counts = tasks.stream()
+      .collect(Collectors.groupingBy(Task::getStatus, Collectors.counting()));
+
+    return TaskSummaryResponse.builder()
+      .total(tasks.size())
+      .todo(counts.getOrDefault(TaskStatus.TODO, 0L).intValue())
+      .inProgress(counts.getOrDefault(TaskStatus.IN_PROGRESS, 0L).intValue())
+      .done(counts.getOrDefault(TaskStatus.DONE, 0L).intValue())
+      .cancelled(counts.getOrDefault(TaskStatus.CANCELLED, 0L).intValue())
+      .build();
   }
 
   /** 개인 일정 생성 */

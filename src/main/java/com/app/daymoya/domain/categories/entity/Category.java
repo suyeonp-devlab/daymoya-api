@@ -65,6 +65,11 @@ public class Category extends BaseAuditEntity {
     this.color = color;
   }
 
+  /** 정렬순서 수정 */
+  public void updateSortNo(Integer sortNo) {
+    this.sortNo = sortNo;
+  }
+
   /** 개인 카테고리 여부 */
   public boolean isPersonal(Long userId) {
     return this.scope == CategoryScope.PERSONAL && userId.equals(this.scopeUserId);
