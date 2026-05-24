@@ -71,7 +71,7 @@ public class AuthService {
 
     // 메일 재전송 제한 - 쿨다운
     if (authRedisRepository.hasSignupCooldown(email)) {
-      throw new BizException(MANY_REQUEST);
+      throw new BizException(AUTH_CODE_MANY_REQUEST);
     }
 
     // 메일 전송 후 code 저장
@@ -170,7 +170,7 @@ public class AuthService {
 
     // 메일 재전송 제한 - 쿨다운
     if (authRedisRepository.hasPasswordResetCooldown(email)) {
-      throw new BizException(MANY_REQUEST);
+      throw new BizException(AUTH_CODE_MANY_REQUEST);
     }
 
     // 메일 전송 후 code 저장
