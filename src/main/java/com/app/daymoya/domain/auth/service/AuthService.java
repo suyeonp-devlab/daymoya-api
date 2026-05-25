@@ -315,10 +315,12 @@ public class AuthService {
 
     // refresh token 검증
     if (!StringUtils.hasText(refreshToken)) {
+      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(INVALID_VALUE);
     }
 
     if (!jwtProvider.validateRefreshToken(refreshToken)) {
+      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(REFRESH_TOKEN_INVALID);
     }
 
@@ -328,12 +330,16 @@ public class AuthService {
 
     Long savedUserId = authRedisRepository.findUserIdByRefreshToken(refreshTokenHash).orElse(null);
     if (savedUserId == null || !savedUserId.equals(userId)) {
+      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(REFRESH_TOKEN_INVALID);
     }
 
     // 회원 조회
-    User user = userRepository.findById(savedUserId)
-      .orElseThrow(() -> new BizException(USER_NOT_FOUND));
+    User user = userRepository.findById(savedUserId).orElse(null);
+    if( user == null ) {
+      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
+      throw new BizException(USER_NOT_FOUND);
+    }
 
     // token 발급 및 쿠키 저장
     String newAccessToken = jwtProvider.generateAccessToken(savedUserId, user.getRole().name());
