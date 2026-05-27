@@ -363,6 +363,7 @@ public class AuthService {
       .maskedEmail(MaskingUtil.maskEmail(user.getEmail()))
       .nickname(user.getNickname())
       .profileImageUrl(fileService.buildFileUrl(user.getProfileImagePath()))
+      .createdAt(user.getCreatedAt())
       .build();
   }
 
