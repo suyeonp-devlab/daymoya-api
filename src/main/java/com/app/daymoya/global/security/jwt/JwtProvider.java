@@ -46,10 +46,6 @@ public class JwtProvider {
     return validateToken(token, ACCESS_TOKEN_TYPE);
   }
 
-  public long getAccessTokenExpirationMs() {
-    return jwtProperties.getAccessTokenExpirationMs();
-  }
-
   /** =====================================
    * refreshToken 관련
    ========================================= */
