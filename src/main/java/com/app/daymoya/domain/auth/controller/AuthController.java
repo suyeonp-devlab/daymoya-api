@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import static com.app.daymoya.global.security.jwt.JwtProvider.REFRESH_TOKEN_COOKIE_NAME;
@@ -21,13 +20,6 @@ import static com.app.daymoya.global.util.WebUtil.getClientIp;
 public class AuthController {
 
   private final AuthService authService;
-
-  /** csrf 토큰 발급 */
-  @GetMapping("/public/csrf-token")
-  public ApiResponse<Void> csrfToken(CsrfToken csrfToken) {
-    csrfToken.getToken();
-    return ApiResponse.success();
-  }
 
   /** 회원가입 메일 인증코드 전송 */
   @PostMapping("/public/signup/code")
@@ -79,19 +71,16 @@ public class AuthController {
 
   /** 로그인 */
   @PostMapping("/public/login")
-  public ApiResponse<Void> login(@Valid @RequestBody LoginRequest request, HttpServletResponse httpResponse) {
-    authService.login(request, httpResponse);
-    return ApiResponse.success();
+  public ApiResponse<String> login(@Valid @RequestBody LoginRequest request, HttpServletResponse httpResponse) {
+    String token = authService.login(request, httpResponse);
+    return ApiResponse.success(token);
   }
 
   /** accessToken 갱신 */
   @PostMapping("/public/refresh")
-  public ApiResponse<Void> refreshAccessToken(
-    @CookieValue(name = REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken,
-    HttpServletResponse httpResponse
-  ) {
-    authService.refreshAccessToken(refreshToken, httpResponse);
-    return ApiResponse.success();
+  public ApiResponse<String> refreshAccessToken(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken) {
+    String token = authService.refreshAccessToken(refreshToken);
+    return ApiResponse.success(token);
   }
 
   /** 로그인 사용자 정보 조회 */

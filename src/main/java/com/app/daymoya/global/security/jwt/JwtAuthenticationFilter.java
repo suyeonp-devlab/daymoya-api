@@ -1,6 +1,5 @@
 package com.app.daymoya.global.security.jwt;
 
-import com.app.daymoya.global.util.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,14 +12,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.app.daymoya.global.security.jwt.JwtProvider.ACCESS_TOKEN_COOKIE_NAME;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String BEARER_PREFIX = "Bearer ";
+
   private final JwtProvider jwtProvider;
-  private final CookieUtil cookieUtil;
 
   @Override
   protected void doFilterInternal(
@@ -29,7 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     FilterChain filterChain
   ) throws ServletException, IOException {
 
-    String token = cookieUtil.getCookieValue(request, ACCESS_TOKEN_COOKIE_NAME).orElse(null);
+    String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+    String token = null;
+
+    if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+      token = authHeader.substring(BEARER_PREFIX.length());
+    }
 
     if (token != null && jwtProvider.validateAccessToken(token)) {
       Authentication authentication = jwtProvider.getAuthentication(token);

@@ -26,7 +26,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static com.app.daymoya.global.exception.ErrorCode.*;
 import static com.app.daymoya.global.exception.ErrorCode.REFRESH_TOKEN_INVALID;
-import static com.app.daymoya.global.security.jwt.JwtProvider.ACCESS_TOKEN_COOKIE_NAME;
 import static com.app.daymoya.global.security.jwt.JwtProvider.REFRESH_TOKEN_COOKIE_NAME;
 
 @Slf4j
@@ -246,7 +245,6 @@ public class AuthService {
     user.changePassword(passwordEncoder.encode(request.getPassword()), now);
 
     // 비밀번호 변경 성공 처리
-    cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
     cookieUtil.deleteCookie(httpResponse, REFRESH_TOKEN_COOKIE_NAME);
     authRedisRepository.deletePasswordResetVerified(email);
 
@@ -256,7 +254,7 @@ public class AuthService {
 
   /** 로그인 */
   @Transactional(noRollbackFor = BizException.class)
-  public void login(LoginRequest request, HttpServletResponse httpResponse) {
+  public String login(LoginRequest request, HttpServletResponse httpResponse) {
 
     String email = request.getEmail().trim().toLowerCase();
     LocalDateTime now = LocalDateTime.now();
@@ -284,18 +282,12 @@ public class AuthService {
     // 로그인 성공 처리
     user.login(now);
 
-    // token 발급 및 쿠키 저장
+    // token 발급
     String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name());
     String refreshToken = jwtProvider.generateRefreshToken(user.getId());
     String refreshTokenHash = sha256Hash.hash(refreshToken);
 
-    cookieUtil.addCookie(
-      httpResponse,
-      ACCESS_TOKEN_COOKIE_NAME,
-      accessToken,
-      (int) (jwtProvider.getAccessTokenExpirationMs() / 1000)
-    );
-
+    // refreshToken 저장
     cookieUtil.addCookie(
       httpResponse,
       REFRESH_TOKEN_COOKIE_NAME,
@@ -308,19 +300,19 @@ public class AuthService {
       user.getId(),
       jwtProvider.getRefreshTokenExpirationMs()
     );
+
+    return accessToken;
   }
 
   /** accessToken 갱신 */
-  public void refreshAccessToken(String refreshToken, HttpServletResponse httpResponse) {
+  public String refreshAccessToken(String refreshToken) {
 
     // refresh token 검증
     if (!StringUtils.hasText(refreshToken)) {
-      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(INVALID_VALUE);
     }
 
     if (!jwtProvider.validateRefreshToken(refreshToken)) {
-      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(REFRESH_TOKEN_INVALID);
     }
 
@@ -330,26 +322,15 @@ public class AuthService {
 
     Long savedUserId = authRedisRepository.findUserIdByRefreshToken(refreshTokenHash).orElse(null);
     if (savedUserId == null || !savedUserId.equals(userId)) {
-      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
       throw new BizException(REFRESH_TOKEN_INVALID);
     }
 
     // 회원 조회
-    User user = userRepository.findById(savedUserId).orElse(null);
-    if( user == null ) {
-      cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
-      throw new BizException(USER_NOT_FOUND);
-    }
+    User user = userRepository.findById(savedUserId)
+      .orElseThrow(() -> new BizException(USER_NOT_FOUND));
 
-    // token 발급 및 쿠키 저장
-    String newAccessToken = jwtProvider.generateAccessToken(savedUserId, user.getRole().name());
-
-    cookieUtil.addCookie(
-      httpResponse,
-      ACCESS_TOKEN_COOKIE_NAME,
-      newAccessToken,
-      (int) (jwtProvider.getAccessTokenExpirationMs() / 1000)
-    );
+    // accessToken 재발급
+    return jwtProvider.generateAccessToken(savedUserId, user.getRole().name());
   }
 
   /** 로그인 사용자 정보 조회 */
@@ -396,7 +377,6 @@ public class AuthService {
   public void logout(Long userId, HttpServletResponse httpResponse) {
 
     // 쿠키 삭제
-    cookieUtil.deleteCookie(httpResponse, ACCESS_TOKEN_COOKIE_NAME);
     cookieUtil.deleteCookie(httpResponse, REFRESH_TOKEN_COOKIE_NAME);
 
     // 멀티 로그인 전체 delete
