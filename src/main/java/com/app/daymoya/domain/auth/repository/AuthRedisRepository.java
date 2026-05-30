@@ -1,4 +1,4 @@
-package com.app.daymoya.domain.auth.service;
+package com.app.daymoya.domain.auth.repository;
 
 import com.app.daymoya.global.redis.RedisKeys;
 import com.app.daymoya.global.redis.RedisTtl;

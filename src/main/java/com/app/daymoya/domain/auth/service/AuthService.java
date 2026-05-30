@@ -2,6 +2,7 @@ package com.app.daymoya.domain.auth.service;
 
 import com.app.daymoya.domain.auth.dto.request.*;
 import com.app.daymoya.domain.auth.dto.response.MeResponse;
+import com.app.daymoya.domain.auth.repository.AuthRedisRepository;
 import com.app.daymoya.domain.users.entity.User;
 import com.app.daymoya.domain.users.entity.UserStatus;
 import com.app.daymoya.domain.users.repository.UserRepository;

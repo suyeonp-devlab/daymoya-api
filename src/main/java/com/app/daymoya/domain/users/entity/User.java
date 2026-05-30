@@ -2,6 +2,7 @@ package com.app.daymoya.domain.users.entity;
 
 import com.app.daymoya.global.entity.BaseAuditEntity;
 import jakarta.persistence.*;
+import org.springframework.util.StringUtils;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -106,6 +107,12 @@ public class User extends BaseAuditEntity {
     this.profileImagePath = "profile/withdrawn-profile.png";
     this.status = UserStatus.WITHDRAWN;
     this.deletedAt = now;
+  }
+
+  /** 프로필 변경 */
+  public void updateProfile(String nickname, String profileImagePath) {
+    if (StringUtils.hasText(nickname)) this.nickname = nickname;
+    if (profileImagePath != null) this.profileImagePath = profileImagePath;
   }
 
 }
